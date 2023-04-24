@@ -19,6 +19,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "eslint-config-airbnb-base": "^15.0.0"
+    "eslint-config-airbnb-base": "^15.0.0",
+    "web3": "^1.9.0"
   }
 }
