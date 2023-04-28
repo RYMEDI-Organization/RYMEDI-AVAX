@@ -2,6 +2,8 @@ import {
   TransactionDetails,
   TransactionReceipt,
   SignedTransaction,
+  TransactionPayload,
+  SendSignedTransactionResponse,
 } from "./TransactionTypes";
 
 /**
@@ -20,21 +22,6 @@ export default interface ITransaction {
    * @returns {Promise<TransactionReceipt>} - The transaction receipt object
    */
   fetchTransactionReceipt(transactionId: string): Promise<TransactionReceipt>;
-  /**
-   * Create signed transaction for all different payloads of transactions
-   * @param {any} payload - The transaction object
-   * @param {string} privateKey - If a private key is provided, use that to sign the transaction, otherwise use the default private key
-   * @returns {Promise<SignedTransaction>} - The signed transaction object
-   */
-  createSignedTransaction(
-    payload: any,
-    privateKey?: string
-  ): Promise<SignedTransaction>;
-  /**
-   * Retrieves the current gas price(in wei) from the blockchain network
-   * @returns {Promise<string>} - gas price
-   */
-  getGasPrice(): Promise<string>;
   /**
    * Retrieves the latest block number from the blockchain network
    * @returns {Promise<number>} - latest block number
