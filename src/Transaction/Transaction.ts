@@ -4,6 +4,8 @@ import {
   TransactionDetails,
   TransactionReceipt,
   SignedTransaction,
+  TransactionPayload,
+  SendSignedTransactionResponse,
 } from "./TransactionTypes";
 
 /**
@@ -33,7 +35,7 @@ class Transaction implements ITransaction {
     try {
       const transaction = await this.web3.eth.getTransaction(transactionId);
       if (!transaction) {
-        throw new Error("Transaction not found");
+        throw new Error(`Transaction details for ${transactionId} not found`);
       }
       return transaction as TransactionDetails;
     } catch (error: any) {
@@ -52,7 +54,7 @@ class Transaction implements ITransaction {
     try {
       const receipt = await this.web3.eth.getTransactionReceipt(transactionId);
       if (!receipt) {
-        throw new Error("Transaction receipt not found");
+        throw new Error(`Transaction receipt for ${transactionId} not found`);
       }
       return receipt as TransactionReceipt;
     } catch (error: any) {
@@ -62,12 +64,12 @@ class Transaction implements ITransaction {
 
   /**
    * Create signed transaction for all different payloads of transactions
-   * @param {any} payload - The transaction object
+   * @param {TransactionPayload} payload - The transaction object
    * @param {string} privateKey - If a private key is provided, use that to sign the transaction, otherwise use the default private key
    * @returns {Promise<SignedTransaction>} - The signed transaction object
    */
-  async createSignedTransaction(
-    payload: any,
+  private async createSignedTransaction(
+    payload: TransactionPayload,
     privateKey?: string
   ): Promise<SignedTransaction> {
     try {
@@ -77,7 +79,27 @@ class Transaction implements ITransaction {
         signerPrivateKey
       );
       return {
-        rawTransaction: signedTransaction.rawTransaction as string
+        rawTransaction: signedTransaction.rawTransaction as string,
+      };
+    } catch (error: any) {
+      throw new Error(`Failed to create signed transaction: ${error.message}`);
+    }
+  }
+
+  /**
+   * Sends an already signed transaction.
+   * @param {string} signedTransactionData - Signed transaction data in HEX format
+   * @returns {Promise<SendSignedTransactionResponse>} - The transaction response
+   */
+  private async sendSignedTransaction(
+    signedTransactionData: string
+  ): Promise<SendSignedTransactionResponse> {
+    try {
+      const result = await this.web3.eth.sendSignedTransaction(
+        signedTransactionData
+      );
+      return {
+        transactionHash: result.transactionHash as string,
       };
     } catch (error: any) {
       throw new Error(`Failed to create signed transaction: ${error.message}`);
@@ -87,7 +109,7 @@ class Transaction implements ITransaction {
    * Retrieves the current gas price(in wei) from the blockchain network
    * @returns {Promise<string>} - gas price
    */
-  async getGasPrice(): Promise<string> {
+  private async getGasPrice(): Promise<string> {
     try {
       const gasPrice = await this.web3.eth.getGasPrice();
 
