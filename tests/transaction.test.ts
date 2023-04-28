@@ -26,7 +26,7 @@ describe("Transaction", () => {
     // Test for successful fetch
     test("fetches transaction details for a valid transaction ID", async () => {
       const transactionId =
-        "0x7265155b36006188f42db30af22fc97a7a8946c8752c46d2dd0aeb4461331ba2";
+        process.env.TRANSACTION_ID as string;
       const transaction = new Transaction(providerUrl, defaultPrivateKey);
       const result = await transaction.fetchTransactionDetails(transactionId);
       expect(result).toBeDefined();
@@ -46,7 +46,7 @@ describe("Transaction", () => {
     // Test for invalid transactionId
     test("throws an error when the transaction ID is invalid", async () => {
       const transactionId =
-        "0x7265155b36006188f42db30af22fc97a7a8946c8752c46d2dd0aeb4461331bb5";
+        process.env.INCORRECT_TRANSACTION_ID as string;
       const transaction = new Transaction(providerUrl, defaultPrivateKey);
       await expect(
         transaction.fetchTransactionDetails(transactionId)
@@ -58,7 +58,7 @@ describe("Transaction", () => {
   describe("fetchTransactionReceipt", () => {
     test("fetches transaction receipt for a valid transaction ID", async () => {
       const transactionId =
-        "0x7265155b36006188f42db30af22fc97a7a8946c8752c46d2dd0aeb4461331ba2";
+      process.env.TRANSACTION_ID as string;
       const transaction = new Transaction(providerUrl, defaultPrivateKey);
       const result = await transaction.fetchTransactionReceipt(transactionId);
       expect(result).toBeDefined();
@@ -78,7 +78,7 @@ describe("Transaction", () => {
 
     // Test for invalid transactionId
     test("throws an error when the transaction ID is invalid", async () => {
-      const transactionId = "invalid-transaction-id";
+      const transactionId = process.env.INCORRECT_TRANSACTION_ID as string;
       const transaction = new Transaction(providerUrl, defaultPrivateKey);
       await expect(
         transaction.fetchTransactionReceipt(transactionId)
@@ -131,8 +131,8 @@ describe("Transaction", () => {
   // Test for fetching latest block details
   describe("getBlockDetails", () => {
     test("returns the block details object when a valid block identifier is provided", async () => {
-      const blockDetails = await transaction.getBlockDetails(123456);
-      expect(blockDetails.number).toBe(123456);
+      const blockDetails = await transaction.getBlockDetails(process.env.BLOCK_NUMBER as string);
+      expect(blockDetails.number).toBe(Number(process.env.BLOCK_NUMBER));
     });
     // Test for failed fetch with invalid block details
     test("throws an error when an invalid block identifier is provided", async () => {
