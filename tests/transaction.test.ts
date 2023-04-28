@@ -7,7 +7,7 @@ const providerUrl = process.env.PROVIDER_URL as string;
 const defaultPrivateKey = process.env.DEFAULT_PRIVATE_KEY as string;
 const payload = {
   to: process.env.RECEIVER_ADDRESS,
-  value: "1000000000",
+  value: process.env.AMOUNT_TO_SEND,
   gas: "21000",
 };
 
