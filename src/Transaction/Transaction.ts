@@ -17,8 +17,8 @@ class Transaction implements ITransaction {
    * @param {string} providerUrl - The web3 provider URL
    * @param {string} defaultPrivateKey - The default private key to sign the transactions
    */
-  constructor(providerUrl: string, defaultPrivateKey: string) {
-    this.web3 = new Web3(providerUrl);
+  constructor(web3: Web3, defaultPrivateKey: string) {
+    this.web3 = web3
     this.defaultPrivateKey = defaultPrivateKey;
   }
 

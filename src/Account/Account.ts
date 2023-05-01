@@ -1,19 +1,26 @@
 import Web3 from "web3";
 import IAccount from "./IAccount";
+
 export class Accounts implements IAccount {
+  private web3: Web3;
   private accounts: string[];
   private nonces: { [key: string]: number };
-  public web3 = new Web3();
-  constructor(privateKeys: string[]) {
-    this.accounts = privateKeys.map(
+
+  /**
+   * @param {string} providerUrl - The web3 provider URL
+   * @param {string} defaultPrivateKey - The default private key to sign the transactions
+   */
+  constructor(web3: Web3, privateKey: string[]) {
+    this.web3 = web3;
+    this.accounts = privateKey.map(
       (privateKey) =>
-        new Web3().eth.accounts.privateKeyToAccount(privateKey).address
+        this.web3.eth.accounts.privateKeyToAccount(privateKey).address
     );
     this.nonces = {};
   }
 
   /**
-   * Returns the addresses of the acount for the given private key.
+   * Returns the addresses of the account for the given private key.
    *
    * @returns Update the variable with the current account addresses for further use.
    */
@@ -28,9 +35,9 @@ export class Accounts implements IAccount {
    *
    * @returns a number which is the transaction count.
    */
-  public async fetchNonce(account: string): Promise<Number> {
+  public async getNonce(account: string): Promise<Number> {
     try {
-      const networkNonce = await new Web3().eth.getTransactionCount(account);
+      const networkNonce = await this.web3.eth.getTransactionCount(account);
       const localNonce = this.nonces[account] || 0;
       return Math.max(networkNonce, localNonce);
     } catch (error) {
@@ -62,13 +69,11 @@ export class Accounts implements IAccount {
    *
    * @returns a string which represents the balance of the account.
    */
-  public async fetchBalance(account: string): Promise<string> {
+  public async getBalance(account: string): Promise<string> {
     try {
       const balance = await this.web3.eth.getBalance(account);
-      console.log(`Fetched balance for account: ${account}`);
       return balance;
     } catch (error) {
-      console.log(`Failed to fetch balance for account: ${account}`, error);
       throw error;
     }
   }
