@@ -4,6 +4,7 @@ import {
   TransactionDetails,
   TransactionReceipt,
   SignedTransaction,
+  TransactionPayload
 } from "./TransactionTypes";
 
 /**
@@ -67,7 +68,7 @@ class Transaction implements ITransaction {
    * @returns {Promise<SignedTransaction>} - The signed transaction object
    */
   async createSignedTransaction(
-    payload: any,
+    payload: TransactionPayload,
     privateKey?: string
   ): Promise<SignedTransaction> {
     try {
