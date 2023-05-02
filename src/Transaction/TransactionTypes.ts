@@ -90,3 +90,25 @@ export interface TransactionReceipt {
 export interface SignedTransaction {
   rawTransaction: string;
 }
+/**
+
+  Interface for transaction playload
+ * @interface TransactionPayload
+ * @property {string} from - address of the sender
+ * @property {string} to - address of the recipient
+ * @property {string} value - Amount to send, in wei
+ * @property {string} data - Data to include in the transaction (optional)
+ * @property {string} nonce - Nonce to use for the transaction (optional)
+ * @property {string} gasLimit - Maximum amount of gas that can be used for the transaction (optional)
+ * @property {string} gasPrice - Gas price to use for the transaction, in wei per gas unit (optional)
+
+*/
+export interface TransactionPayload {
+  from: string;
+  to: string;
+  value: string;
+  data?: string;
+  nonce?: number;
+  gasLimit?: number;
+  gasPrice?: string;
+}

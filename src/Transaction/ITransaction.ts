@@ -2,6 +2,7 @@ import {
   TransactionDetails,
   TransactionReceipt,
   SignedTransaction,
+  TransactionPayload
 } from "./TransactionTypes";
 
 /**
@@ -27,7 +28,7 @@ export default interface ITransaction {
    * @returns {Promise<SignedTransaction>} - The signed transaction object
    */
   createSignedTransaction(
-    payload: any,
+    payload: TransactionPayload,
     privateKey?: string
   ): Promise<SignedTransaction>;
   /**
