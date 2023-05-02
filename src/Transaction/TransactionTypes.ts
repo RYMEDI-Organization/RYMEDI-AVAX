@@ -112,3 +112,11 @@ export interface TransactionPayload {
   gasLimit?: number;
   gasPrice?: string;
 }
+/** 
+Interface for signed transaction response
+ * @interface SendSignedTransactionResponse
+ * @property {string} transactionHash - transaction Hash
+*/
+export interface SendSignedTransactionResponse {
+  transactionHash: string;
+}
