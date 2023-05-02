@@ -4,7 +4,8 @@ import {
   TransactionDetails,
   TransactionReceipt,
   SignedTransaction,
-  TransactionPayload
+  TransactionPayload,
+  SendSignedTransactionResponse,
 } from "./TransactionTypes";
 
 /**
@@ -63,7 +64,7 @@ class Transaction implements ITransaction {
 
   /**
    * Create signed transaction for all different payloads of transactions
-   * @param {any} payload - The transaction object
+   * @param {TransactionPayload} payload - The transaction object
    * @param {string} privateKey - If a private key is provided, use that to sign the transaction, otherwise use the default private key
    * @returns {Promise<SignedTransaction>} - The signed transaction object
    */
@@ -78,7 +79,27 @@ class Transaction implements ITransaction {
         signerPrivateKey
       );
       return {
-        rawTransaction: signedTransaction.rawTransaction as string
+        rawTransaction: signedTransaction.rawTransaction as string,
+      };
+    } catch (error: any) {
+      throw new Error(`Failed to create signed transaction: ${error.message}`);
+    }
+  }
+
+  /**
+   * Sends an already signed transaction.
+   * @param {string} signedTransactionData - Signed transaction data in HEX format
+   * @returns {Promise<SendSignedTransactionResponse>} - The transaction response
+   */
+  async sendSignedTransaction(
+    signedTransactionData: string
+  ): Promise<SendSignedTransactionResponse> {
+    try {
+      const result = await this.web3.eth.sendSignedTransaction(
+        signedTransactionData
+      );
+      return {
+        transactionHash: result.transactionHash as string,
       };
     } catch (error: any) {
       throw new Error(`Failed to create signed transaction: ${error.message}`);

@@ -2,7 +2,8 @@ import {
   TransactionDetails,
   TransactionReceipt,
   SignedTransaction,
-  TransactionPayload
+  TransactionPayload,
+  SendSignedTransactionResponse,
 } from "./TransactionTypes";
 
 /**
@@ -31,6 +32,15 @@ export default interface ITransaction {
     payload: TransactionPayload,
     privateKey?: string
   ): Promise<SignedTransaction>;
+  /**
+   * Sends an already signed transaction.
+   * @param {string} signedTransactionData - Signed transaction data in HEX format
+   * @returns {Promise<SendSignedTransactionResponse>} - The transaction response
+   */
+  sendSignedTransaction(
+    signedTransactionData: string
+  ): Promise<SendSignedTransactionResponse>;
+
   /**
    * Retrieves the current gas price(in wei) from the blockchain network
    * @returns {Promise<string>} - gas price
