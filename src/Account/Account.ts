@@ -35,7 +35,7 @@ export class Accounts implements IAccount {
    *
    * @returns a number which is the transaction count.
    */
-  public async getNonce(account: string): Promise<Number> {
+  public async getNonce(account: string): Promise<number> {
     try {
       const networkNonce = await this.web3.eth.getTransactionCount(account);
       const localNonce = this.nonces[account] || 0;

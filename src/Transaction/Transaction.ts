@@ -1,5 +1,6 @@
 import Web3 from "web3";
 import ITransaction from "./ITransaction";
+import { Accounts } from "../Account/Account";
 import {
   TransactionDetails,
   TransactionReceipt,
@@ -14,14 +15,16 @@ import {
 class Transaction implements ITransaction {
   private web3: Web3;
   private defaultPrivateKey: string;
+  private accounts: Accounts;
 
   /**
    * @param {string} providerUrl - The web3 provider URL
    * @param {string} defaultPrivateKey - The default private key to sign the transactions
    */
-  constructor(web3: Web3, defaultPrivateKey: string) {
-    this.web3 = web3
-    this.defaultPrivateKey = defaultPrivateKey;
+  constructor(web3: Web3, defaultPrivateKey: string[]) {
+    this.web3 = web3;
+    this.defaultPrivateKey = defaultPrivateKey[0];
+    this.accounts = new Accounts(this.web3, defaultPrivateKey);
   }
 
   /**
@@ -74,8 +77,14 @@ class Transaction implements ITransaction {
   ): Promise<SignedTransaction> {
     try {
       const signerPrivateKey = privateKey || this.defaultPrivateKey;
+      const nonce: number = await this.accounts.getNonce(payload.from);
+      const tx: TransactionPayload = {
+        ...payload,
+        nonce,
+      };
+      this.accounts.incrementNonce(payload.from);
       const signedTransaction = await this.web3.eth.accounts.signTransaction(
-        payload,
+        tx,
         signerPrivateKey
       );
       return {

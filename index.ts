@@ -34,6 +34,6 @@ export class rymediAvaxHelper {
    * @returns {Transaction} - An instance of the Transaction class
    */
   transactions(): Transaction {
-    return new Transaction(this.web3, this.defaultPrivateKey[0]);
+    return new Transaction(this.web3, this.defaultPrivateKey);
   }
 }
