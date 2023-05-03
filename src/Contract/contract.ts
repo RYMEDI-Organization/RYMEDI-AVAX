@@ -2,6 +2,7 @@ import Web3 from "web3";
 import { Accounts } from "../Account/Account";
 import Transaction from "../Transaction/Transaction";
 import { IRecord } from "./IContract";
+import { AbiItem } from "web3-utils";
 
 class Contract {
   private readonly contractAddress: string;
@@ -12,7 +13,7 @@ class Contract {
   private transaction: Transaction;
   constructor(
     contractAddress: string,
-    abi: any,
+    abi: AbiItem | AbiItem[],
     privateKey: string[],
     providerUrl: Web3,
     contract:any

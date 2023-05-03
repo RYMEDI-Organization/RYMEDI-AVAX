@@ -8,7 +8,7 @@ export class Accounts implements IAccount {
 
   /**
    * @param {string} providerUrl - The web3 provider URL
-   * @param {string} defaultPrivateKey - The default private key to sign the transactions
+   * @param {string} privateKeys - The private keys to get account.
    */
   constructor(web3: Web3, privateKey: string[]) {
     this.web3 = web3;
@@ -51,14 +51,10 @@ export class Accounts implements IAccount {
    * @param account The address of the account
    */
   public incrementNonce(account: string): void {
-    try {
-      if (!this.nonces[account]) {
-        this.nonces[account] = 1;
-      } else {
-        this.nonces[account]++;
-      }
-    } catch (error) {
-      throw error;
+    if (!this.nonces[account]) {
+      this.nonces[account] = 1;
+    } else {
+      this.nonces[account]++;
     }
   }
 
