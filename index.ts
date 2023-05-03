@@ -2,14 +2,13 @@ import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 import { Accounts } from "./src/Account/Account";
 import Transaction from "./src/Transaction/Transaction";
-import Contract from "./src/Contract/contract";
+import SmartContract from "./src/Contract/contract";
 
 export class BlockchainClient {
   private web3: Web3;
   private privateKeys: string[];
   private abi;
   private contractAddress: string;
-  private contract: any;
   constructor(
     providedUrl: string,
     privateKey: string[],
@@ -20,7 +19,6 @@ export class BlockchainClient {
     this.web3 = new Web3(providedUrl);
     this.privateKeys = privateKey;
     this.contractAddress = contractAddress;
-    this.contract = new this.web3.eth.Contract(abi, contractAddress);
   }
 
   /**
@@ -40,13 +38,12 @@ export class BlockchainClient {
     return new Transaction(this.web3, this.privateKeys);
   }
 
-  Contract(): Contract {
-    return new Contract(
+  Contract(): SmartContract {
+    return new SmartContract(
       this.contractAddress,
       this.abi,
       this.privateKeys,
-      this.web3,
-      this.contract
+      this.web3
     );
   }
 }

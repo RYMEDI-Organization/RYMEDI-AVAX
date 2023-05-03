@@ -3,27 +3,31 @@ import { Accounts } from "../Account/Account";
 import Transaction from "../Transaction/Transaction";
 import { IRecord } from "./IContract";
 import { AbiItem } from "web3-utils";
+import {
+  TransactionPayload,
+  SignedTransaction,
+  SendSignedTransactionResponse,
+} from "../Transaction/TransactionTypes";
 
-class Contract {
+class SmartContract {
   private readonly contractAddress: string;
   private readonly web3: Web3;
-  private readonly defaultPrivateKey: string;
+  private readonly PrivateKeys: string[];
   private readonly contract: any;
   private accounts: Accounts;
   private transaction: Transaction;
   constructor(
     contractAddress: string,
     abi: AbiItem | AbiItem[],
-    privateKey: string[],
-    providerUrl: Web3,
-    contract:any
+    privateKeys: string[],
+    providerUrl: Web3
   ) {
     this.contractAddress = contractAddress;
     this.web3 = providerUrl;
-    this.defaultPrivateKey = privateKey[0];
-    this.contract = contract;
-    this.accounts = new Accounts(providerUrl, privateKey);
-    this.transaction = new Transaction(providerUrl, privateKey);
+    this.PrivateKeys = privateKeys;
+    this.contract = new this.web3.eth.Contract(abi, contractAddress);
+    this.accounts = new Accounts(providerUrl, privateKeys);
+    this.transaction = new Transaction(providerUrl, privateKeys);
   }
   /**
    * Pushes data to the blockchain by invoking the smart contract function that writes a record.
@@ -39,23 +43,35 @@ class Contract {
     privateKey?: string
   ): Promise<string> {
     try {
-      const signerPrivateKey = privateKey || this.defaultPrivateKey;
+      const signerPrivateKey = this.PrivateKeys[0];
       const gasPrice = await this.web3.eth.getGasPrice();
+
       const data = this.contract.methods.pushRecord(key, value);
       //estimating the gasLimit of keys and values we passed in Bulk Records
       const gasLimit = await data.estimateGas();
-      const tx = {
-        from: this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address,
+      const tx: TransactionPayload = {
+        from: this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey)
+          .address,
         to: this.contractAddress,
         gasPrice: gasPrice,
         gasLimit: gasLimit,
         data: data.encodeABI(),
       };
-      const signedTx = await this.transaction.createSignedTransaction(
+      const createSignTx = this.transaction["createSignedTransaction"] as (
+        payload: TransactionPayload,
+        privateKey?: string
+      ) => Promise<SignedTransaction>;
+      const signedTx = await createSignTx.call(
+        this.transaction,
         tx,
-        signerPrivateKey
+        signerPrivateKey as string
       );
-      const txReceipt = await this.transaction.sendSignedTransaction(
+      const sendSignedTxMethod = this.transaction["sendSignedTransaction"] as (
+        signedTransactionData: string
+      ) => Promise<SendSignedTransactionResponse>;
+
+      const txReceipt = await sendSignedTxMethod.call(
+        this.transaction,
         signedTx.rawTransaction
       );
       return txReceipt.transactionHash;
@@ -79,4 +95,4 @@ class Contract {
   }
 }
 
-export default Contract;
+export default SmartContract;
