@@ -5,18 +5,23 @@ export class Accounts implements IAccount {
   private web3: Web3;
   private accounts: string[];
   private nonces: { [key: string]: number };
+  private currentKeyIndex: number;
+  private readonly PrivateKeys: string[];
+
 
   /**
    * @param {string} providerUrl - The web3 provider URL
    * @param {string} privateKeys - The private keys to get account.
    */
-  constructor(web3: Web3, privateKey: string[]) {
+  constructor(web3: Web3, privateKeys: string[]) {
     this.web3 = web3;
-    this.accounts = privateKey.map(
+    this.accounts = privateKeys.map(
       (privateKey) =>
         this.web3.eth.accounts.privateKeyToAccount(privateKey).address
     );
     this.nonces = {};
+    this.currentKeyIndex = 0;
+    this.PrivateKeys = privateKeys
   }
 
   /**
@@ -72,5 +77,12 @@ export class Accounts implements IAccount {
     } catch (error) {
       throw error;
     }
+  }
+
+  private returnPrivateKey(): string {
+    const numKeys = this.PrivateKeys.length;
+      let signerPrivateKey = this.PrivateKeys[this.currentKeyIndex];
+      this.currentKeyIndex = (this.currentKeyIndex + 1) % numKeys;
+      return signerPrivateKey;
   }
 }
