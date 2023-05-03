@@ -33,8 +33,8 @@ export class Accounts implements IAccount {
       const networkNonce = await new Web3().eth.getTransactionCount(account);
       const localNonce = this.nonces[account] || 0;
       return Math.max(networkNonce, localNonce);
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      throw new Error(`Failed to fetch nonce: ${error.message}` );
     }
   }
 
@@ -62,8 +62,8 @@ export class Accounts implements IAccount {
     try {
       const balance = await this.web3.eth.getBalance(account);
       return balance;
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      throw new Error(`Failed to fetch balance: ${error.message}` );
     }
   }
 }
