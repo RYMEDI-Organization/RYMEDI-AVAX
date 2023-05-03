@@ -44,15 +44,11 @@ export class Accounts implements IAccount {
    * @param account The address of the account
    */
   public incrementNonce(account: string): void {
-    try {
       if (!this.nonces[account]) {
         this.nonces[account] = 1;
       } else {
         this.nonces[account]++;
       }
-    } catch (error) {
-      throw error;
-    }
   }
 
   /**
@@ -65,10 +61,8 @@ export class Accounts implements IAccount {
   public async fetchBalance(account: string): Promise<string> {
     try {
       const balance = await this.web3.eth.getBalance(account);
-      console.log(`Fetched balance for account: ${account}`);
       return balance;
     } catch (error) {
-      console.log(`Failed to fetch balance for account: ${account}`, error);
       throw error;
     }
   }
