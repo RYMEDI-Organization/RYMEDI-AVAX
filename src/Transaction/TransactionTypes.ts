@@ -106,7 +106,7 @@ export interface SignedTransaction {
 export interface TransactionPayload {
   from: string;
   to: string;
-  value: string;
+  value?: string;
   data?: string;
   nonce?: number;
   gasLimit?: number;
