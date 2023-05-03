@@ -38,7 +38,7 @@ class Transaction implements ITransaction {
     try {
       const transaction = await this.web3.eth.getTransaction(transactionId);
       if (!transaction) {
-        throw new Error("Transaction not found");
+        throw new Error(`Transaction details for ${transactionId} not found`);
       }
       return transaction as TransactionDetails;
     } catch (error: any) {
@@ -57,7 +57,7 @@ class Transaction implements ITransaction {
     try {
       const receipt = await this.web3.eth.getTransactionReceipt(transactionId);
       if (!receipt) {
-        throw new Error("Transaction receipt not found");
+        throw new Error(`Transaction receipt for ${transactionId} not found`);
       }
       return receipt as TransactionReceipt;
     } catch (error: any) {
@@ -71,7 +71,7 @@ class Transaction implements ITransaction {
    * @param {string} privateKey - If a private key is provided, use that to sign the transaction, otherwise use the default private key
    * @returns {Promise<SignedTransaction>} - The signed transaction object
    */
-  async createSignedTransaction(
+  private async createSignedTransaction(
     payload: TransactionPayload,
     privateKey?: string
   ): Promise<SignedTransaction> {
@@ -100,7 +100,7 @@ class Transaction implements ITransaction {
    * @param {string} signedTransactionData - Signed transaction data in HEX format
    * @returns {Promise<SendSignedTransactionResponse>} - The transaction response
    */
-  async sendSignedTransaction(
+  private async sendSignedTransaction(
     signedTransactionData: string
   ): Promise<SendSignedTransactionResponse> {
     try {
@@ -118,7 +118,7 @@ class Transaction implements ITransaction {
    * Retrieves the current gas price(in wei) from the blockchain network
    * @returns {Promise<string>} - gas price
    */
-  async getGasPrice(): Promise<string> {
+  private async getGasPrice(): Promise<string> {
     try {
       const gasPrice = await this.web3.eth.getGasPrice();
 

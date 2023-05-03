@@ -23,30 +23,6 @@ export default interface ITransaction {
    */
   fetchTransactionReceipt(transactionId: string): Promise<TransactionReceipt>;
   /**
-   * Create signed transaction for all different payloads of transactions
-   * @param {any} payload - The transaction object
-   * @param {string} privateKey - If a private key is provided, use that to sign the transaction, otherwise use the default private key
-   * @returns {Promise<SignedTransaction>} - The signed transaction object
-   */
-  createSignedTransaction(
-    payload: TransactionPayload,
-    privateKey?: string
-  ): Promise<SignedTransaction>;
-  /**
-   * Sends an already signed transaction.
-   * @param {string} signedTransactionData - Signed transaction data in HEX format
-   * @returns {Promise<SendSignedTransactionResponse>} - The transaction response
-   */
-  sendSignedTransaction(
-    signedTransactionData: string
-  ): Promise<SendSignedTransactionResponse>;
-
-  /**
-   * Retrieves the current gas price(in wei) from the blockchain network
-   * @returns {Promise<string>} - gas price
-   */
-  getGasPrice(): Promise<string>;
-  /**
    * Retrieves the latest block number from the blockchain network
    * @returns {Promise<number>} - latest block number
    */
