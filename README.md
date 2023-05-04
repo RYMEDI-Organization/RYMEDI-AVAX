@@ -30,13 +30,13 @@ const blockchainClient = new BlockchainClient('URL', [PRIVATE KEYS], [ABI], 'Con
 
 The BlockchainClient library provides the following API:
 
-constructor(providerUrl: string, privateKey: string[], ABI: AbiItem|AbiItem[], ContractAddress: string)
+constructor(providerUrl: string, privateKeys: string[], ABI: AbiItem|AbiItem[], ContractAddress: string)
 
 Creates a new instance of the BlockchainClient class.
 
 providerUrl - The URL of the Ethereum-based blockchain network you want to interact with.
 
-privateKey - The private key to establish account details.
+privateKeys - The private keys to establish account details.
 
 ABI - ABI of smart contract gives a contract the ability to communicate and interact with external applications and other smart contracts.
 
