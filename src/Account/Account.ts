@@ -46,8 +46,8 @@ export class Accounts implements IAccount {
       const maxNonce = Math.max(networkNonce, localNonce);
       this.nonces[account] = maxNonce;
       return maxNonce;
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      throw new Error(`Failed to fetch nonce: ${error.message}` );
     }
   }
 
@@ -57,11 +57,11 @@ export class Accounts implements IAccount {
    * @param account The address of the account
    */
   public incrementNonce(account: string): void {
-    if (!this.nonces[account]) {
-      this.nonces[account] = 1;
-    } else {
-      this.nonces[account]++;
-    }
+      if (!this.nonces[account]) {
+        this.nonces[account] = 1;
+      } else {
+        this.nonces[account]++;
+      }
   }
 
   /**
@@ -75,8 +75,8 @@ export class Accounts implements IAccount {
     try {
       const balance = await this.web3.eth.getBalance(account);
       return balance;
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      throw new Error(`Failed to fetch balance: ${error.message}` );
     }
   }
   /**
