@@ -1,19 +1,30 @@
 import Web3 from "web3";
 import IAccount from "./IAccount";
+
 export class Accounts implements IAccount {
+  private web3: Web3;
   private accounts: string[];
   private nonces: { [key: string]: number };
-  public web3 = new Web3();
-  constructor(privateKeys: string[]) {
+  private currentKeyIndex: number;
+  private readonly PrivateKeys: string[];
+
+  /**
+   * @param {string} providerUrl - The web3 provider URL
+   * @param {string} privateKeys - The private keys to get account.
+   */
+  constructor(web3: Web3, privateKeys: string[]) {
+    this.web3 = web3;
     this.accounts = privateKeys.map(
       (privateKey) =>
-        new Web3().eth.accounts.privateKeyToAccount(privateKey).address
+        this.web3.eth.accounts.privateKeyToAccount(privateKey).address
     );
     this.nonces = {};
+    this.currentKeyIndex = 0;
+    this.PrivateKeys = privateKeys;
   }
 
   /**
-   * Returns the addresses of the acount for the given private key.
+   * Returns the addresses of the account for the given private key.
    *
    * @returns Update the variable with the current account addresses for further use.
    */
@@ -28,13 +39,15 @@ export class Accounts implements IAccount {
    *
    * @returns a number which is the transaction count.
    */
-  public async fetchNonce(account: string): Promise<Number> {
+  private async getNonce(account: string): Promise<number> {
     try {
-      const networkNonce = await new Web3().eth.getTransactionCount(account);
+      const networkNonce = await this.web3.eth.getTransactionCount(account);
       const localNonce = this.nonces[account] || 0;
-      return Math.max(networkNonce, localNonce);
+      const maxNonce = Math.max(networkNonce, localNonce);
+      this.nonces[account] = maxNonce;
+      return maxNonce;
     } catch (error: any) {
-      throw new Error(`Failed to fetch nonce: ${error.message}` );
+      throw new Error(`Failed to fetch nonce: ${error.message}`);
     }
   }
 
@@ -44,11 +57,11 @@ export class Accounts implements IAccount {
    * @param account The address of the account
    */
   public incrementNonce(account: string): void {
-      if (!this.nonces[account]) {
-        this.nonces[account] = 1;
-      } else {
-        this.nonces[account]++;
-      }
+    if (!this.nonces[account]) {
+      this.nonces[account] = 1;
+    } else {
+      this.nonces[account]++;
+    }
   }
 
   /**
@@ -58,12 +71,29 @@ export class Accounts implements IAccount {
    *
    * @returns a string which represents the balance of the account.
    */
-  public async fetchBalance(account: string): Promise<string> {
+  public async getBalance(account: string): Promise<string> {
     try {
       const balance = await this.web3.eth.getBalance(account);
       return balance;
     } catch (error: any) {
-      throw new Error(`Failed to fetch balance: ${error.message}` );
+      throw new Error(`Failed to fetch balance: ${error.message}`);
     }
+  }
+  /**
+   * To return private key in round robin way.
+   * @returns private key.
+   */
+  private returnPrivateKey(): string {
+    const numKeys = this.PrivateKeys.length;
+    let signerPrivateKey = this.PrivateKeys[this.currentKeyIndex];
+    this.currentKeyIndex = (this.currentKeyIndex + 1) % numKeys;
+    return signerPrivateKey;
+  }
+  /**
+   * Resets the local nonce for the given account to 0.
+   * @param account The address of the account
+   */
+  public resetNonces(account: string): void {
+    this.nonces[account] = 0;
   }
 }

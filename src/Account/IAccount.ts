@@ -7,23 +7,14 @@ export default interface IAccount {
    *
    * @returns Update the variable with the current account addresses for further use.
    */
-  getAccounts(): String[];
-
-  /**
-   * Used to fetch the current transaction count of the account
-   *
-   * @param account The address of the account
-   *
-   * @returns a number which is the transaction count.
-   */
-  fetchNonce(account: String): Promise<Number>;
+  getAccounts(): string[];
 
   /**
    * An function used to update the transaction count of the account.
    *
    * @param account The address of the account
    */
-  fetchBalance(account: String): Promise<String>;
+  getBalance(account: string): Promise<string>;
 
   /**
    * To fetch the balance of the account.
@@ -32,5 +23,5 @@ export default interface IAccount {
    *
    * @returns a string which represents the balance of the account.
    */
-  incrementNonce(account: String): void;
+  incrementNonce(account: string): void;
 }
