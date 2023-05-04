@@ -30,7 +30,7 @@ const blockchainClient = new BlockchainClient('URL', [PRIVATE KEYS], [ABI], 'Con
 
 The BlockchainClient library provides the following API:
 
-constructor(providerUrl: string, privateKey: string[], ABI: AbiItem|AbiItem[], ContractAddress: string)
+constructor(providerUrl: string, privateKeys: string[], ABI: AbiItem|AbiItem[], ContractAddress: string)
 
 Creates a new instance of the BlockchainClient class.
 
