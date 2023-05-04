@@ -10,15 +10,6 @@ export default interface IAccount {
   getAccounts(): string[];
 
   /**
-   * Used to fetch the current transaction count of the account
-   *
-   * @param account The address of the account
-   *
-   * @returns a number which is the transaction count.
-   */
-  getNonce(account: string): Promise<Number>;
-
-  /**
    * An function used to update the transaction count of the account.
    *
    * @param account The address of the account

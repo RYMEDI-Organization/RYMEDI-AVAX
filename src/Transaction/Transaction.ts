@@ -15,7 +15,7 @@ import {
 class Transaction implements ITransaction {
   private web3: Web3;
   private accounts: Accounts;
-
+  private getNonce: Function
   /**
    * @param {string} providerUrl - The web3 provider URL
    * @param {string} privateKeys - The default private key to sign the transactions
@@ -23,6 +23,9 @@ class Transaction implements ITransaction {
   constructor(web3: Web3, privateKeys: string[]) {
     this.web3 = web3;
     this.accounts = new Accounts(this.web3, privateKeys);
+    this.getNonce = this.accounts["getNonce"] as (
+      address: string
+    ) => Promise<number>
   }
 
   /**
@@ -74,7 +77,7 @@ class Transaction implements ITransaction {
     privateKey: string
   ): Promise<SignedTransaction> {
     try {
-      const nonce: number = await this.accounts.getNonce(payload.from);
+      const nonce: number = await this.getNonce(payload.from);
       const tx: TransactionPayload = {
         ...payload,
         nonce,

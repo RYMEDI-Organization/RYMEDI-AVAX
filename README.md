@@ -56,14 +56,6 @@ Gets the balance of the specified Ethereum address.
 
 address - The Ethereum address you want to get the balance of.
 Returns a Promise that resolves to a string representing the balance in wei.
-```
-blockchainClient.Account.getNonce(address)
-```
-***getNonce(address: string): Promise<number>***
-Gets the number of transactions sent from the specified Ethereum address.
-
-address - The Ethereum address you want to get the number of transactions for.
-Returns a Promise that resolves to a number representing the number of transactions.
 
 ```
 blockchainClient.Transaction.fetchTransactionDetails(transactionId)
@@ -95,7 +87,7 @@ Retrieves the latest block number from the blockchain network
 returns a promise that resolves latest block number
 
 ```
-blockchainClient.Transaction.getBlocDetails(blockIdentifier)
+blockchainClient.Transaction.getBlockDetails(blockIdentifier)
 ```
 ***getBlockDetails(blockIdentifier: string | number): Promise<any>***
 Retrieves details of a block on the blockchain network based on its identifier (either block number or block hash)
