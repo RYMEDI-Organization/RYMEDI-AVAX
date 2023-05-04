@@ -47,7 +47,7 @@ export class Accounts implements IAccount {
       this.nonces[account] = maxNonce;
       return maxNonce;
     } catch (error: any) {
-      throw new Error(`Failed to fetch nonce: ${error.message}` );
+      throw new Error(`Failed to fetch nonce: ${error.message}`);
     }
   }
 
@@ -57,11 +57,11 @@ export class Accounts implements IAccount {
    * @param account The address of the account
    */
   public incrementNonce(account: string): void {
-      if (!this.nonces[account]) {
-        this.nonces[account] = 1;
-      } else {
-        this.nonces[account]++;
-      }
+    if (!this.nonces[account]) {
+      this.nonces[account] = 1;
+    } else {
+      this.nonces[account]++;
+    }
   }
 
   /**
@@ -76,7 +76,7 @@ export class Accounts implements IAccount {
       const balance = await this.web3.eth.getBalance(account);
       return balance;
     } catch (error: any) {
-      throw new Error(`Failed to fetch balance: ${error.message}` );
+      throw new Error(`Failed to fetch balance: ${error.message}`);
     }
   }
   /**
@@ -90,9 +90,10 @@ export class Accounts implements IAccount {
     return signerPrivateKey;
   }
   /**
-   * Resets the nonces object to an empty object.
+   * Resets the local nonce for the given account to 0.
+   * @param account The address of the account
    */
-  public resetNonces(): void {
-    this.nonces = {};
+  public resetNonces(account: string): void {
+    this.nonces[account] = 0;
   }
 }
