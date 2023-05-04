@@ -112,13 +112,11 @@ blockchainClient.Contract.pushRecord(key, value, privateKey(optional))
 ***pushRecord(
     key: string,
     value: string,
-    privateKey?: string
   ): Promise<string>***
 Pushes data to the blockchain by invoking the smart contract function that writes a record.
 The transaction is signed with the provided private key.
     
 key: The key of the record to write.
 value: The value of the record to write.
-privateKey: If a private key is provided, use that to sign the transaction, otherwise use the default private key
 returns The transaction hash of the submitted transaction.
 
