@@ -14,17 +14,15 @@ import {
  */
 class Transaction implements ITransaction {
   private web3: Web3;
-  private defaultPrivateKey: string;
   private accounts: Accounts;
 
   /**
    * @param {string} providerUrl - The web3 provider URL
-   * @param {string} defaultPrivateKey - The default private key to sign the transactions
+   * @param {string} privateKeys - The default private key to sign the transactions
    */
-  constructor(web3: Web3, defaultPrivateKey: string[]) {
+  constructor(web3: Web3, privateKeys: string[]) {
     this.web3 = web3;
-    this.defaultPrivateKey = defaultPrivateKey[0];
-    this.accounts = new Accounts(this.web3, defaultPrivateKey);
+    this.accounts = new Accounts(this.web3, privateKeys);
   }
 
   /**
@@ -73,10 +71,9 @@ class Transaction implements ITransaction {
    */
   private async createSignedTransaction(
     payload: TransactionPayload,
-    privateKey?: string
+    privateKey: string
   ): Promise<SignedTransaction> {
     try {
-      const signerPrivateKey = privateKey || this.defaultPrivateKey;
       const nonce: number = await this.accounts.getNonce(payload.from);
       const tx: TransactionPayload = {
         ...payload,
@@ -85,12 +82,13 @@ class Transaction implements ITransaction {
       this.accounts.incrementNonce(payload.from);
       const signedTransaction = await this.web3.eth.accounts.signTransaction(
         tx,
-        signerPrivateKey
+        privateKey
       );
       return {
         rawTransaction: signedTransaction.rawTransaction as string,
       };
     } catch (error: any) {
+      this.accounts.resetNonces()
       throw new Error(`Failed to create signed transaction: ${error.message}`);
     }
   }
@@ -111,6 +109,7 @@ class Transaction implements ITransaction {
         transactionHash: result.transactionHash as string,
       };
     } catch (error: any) {
+      this.accounts.resetNonces()
       throw new Error(`Failed to create signed transaction: ${error.message}`);
     }
   }

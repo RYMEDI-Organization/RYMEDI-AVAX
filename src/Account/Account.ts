@@ -8,7 +8,6 @@ export class Accounts implements IAccount {
   private currentKeyIndex: number;
   private readonly PrivateKeys: string[];
 
-
   /**
    * @param {string} providerUrl - The web3 provider URL
    * @param {string} privateKeys - The private keys to get account.
@@ -21,7 +20,7 @@ export class Accounts implements IAccount {
     );
     this.nonces = {};
     this.currentKeyIndex = 0;
-    this.PrivateKeys = privateKeys
+    this.PrivateKeys = privateKeys;
   }
 
   /**
@@ -44,7 +43,9 @@ export class Accounts implements IAccount {
     try {
       const networkNonce = await this.web3.eth.getTransactionCount(account);
       const localNonce = this.nonces[account] || 0;
-      return Math.max(networkNonce, localNonce);
+      const maxNonce = Math.max(networkNonce, localNonce);
+      this.nonces[account] = maxNonce;
+      return maxNonce;
     } catch (error) {
       throw error;
     }
@@ -78,11 +79,20 @@ export class Accounts implements IAccount {
       throw error;
     }
   }
-
+  /**
+   * To return private key in round robin way.
+   * @returns private key.
+   */
   private returnPrivateKey(): string {
     const numKeys = this.PrivateKeys.length;
-      let signerPrivateKey = this.PrivateKeys[this.currentKeyIndex];
-      this.currentKeyIndex = (this.currentKeyIndex + 1) % numKeys;
-      return signerPrivateKey;
+    let signerPrivateKey = this.PrivateKeys[this.currentKeyIndex];
+    this.currentKeyIndex = (this.currentKeyIndex + 1) % numKeys;
+    return signerPrivateKey;
+  }
+  /**
+   * Resets the nonces object to an empty object.
+   */
+  public resetNonces(): void {
+    this.nonces = {};
   }
 }
