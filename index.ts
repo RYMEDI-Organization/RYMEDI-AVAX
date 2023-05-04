@@ -9,6 +9,10 @@ export class BlockchainClient {
   private privateKeys: string[];
   private abi;
   private contractAddress: string;
+  public Account: Accounts
+  public Transaction: Transaction
+  public Contract: SmartContract
+
   constructor(
     providedUrl: string,
     privateKey: string[],
@@ -19,6 +23,9 @@ export class BlockchainClient {
     this.web3 = new Web3(providedUrl);
     this.privateKeys = privateKey;
     this.contractAddress = contractAddress;
+    this.Account = this.accounts()
+    this.Contract = this.contract()
+    this.Transaction = this.transactions()
   }
 
   /**
@@ -26,7 +33,7 @@ export class BlockchainClient {
    *
    * @returns {Accounts} - An instance of the Accounts class
    */
-  accounts(): Accounts {
+  private accounts(): Accounts {
     return new Accounts(this.web3, this.privateKeys);
   }
   /**
@@ -34,11 +41,11 @@ export class BlockchainClient {
    *
    * @returns {Transaction} - An instance of the Transaction class
    */
-  transactions(): Transaction {
+  private transactions(): Transaction {
     return new Transaction(this.web3, this.privateKeys);
   }
 
-  Contract(): SmartContract {
+  private contract(): SmartContract {
     return new SmartContract(
       this.contractAddress,
       this.abi,

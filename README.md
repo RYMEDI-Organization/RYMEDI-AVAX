@@ -39,56 +39,65 @@ ABI - ABI of smart contract gives a contract the ability to communicate and inte
 ContractAddress - Address of the smart contract.
 
 ```
-const accountHelper = blockchainClient.accounts()
+blockchainClient.Account.getAccount()
 ```
-
-This instance provide access to the following functions: 
-
-getAccount(privateKey: string) - string[]
+***getAccount(privateKey: string) - string[]***
 Gets the address of the specified private address.
 
 private key - The private key you want to get the public key for.
 Returns a string of array which is a number representing the number of transactions.
 
+
+```
+blockchainClient.Account.getBalance(address)
+```
 getBalance(address: string): Promise<string>
 Gets the balance of the specified Ethereum address.
 
 address - The Ethereum address you want to get the balance of.
 Returns a Promise that resolves to a string representing the balance in wei.
-
-getNonce(address: string): Promise<number>
+```
+blockchainClient.Account.getNonce(address)
+```
+***getNonce(address: string): Promise<number>***
 Gets the number of transactions sent from the specified Ethereum address.
 
 address - The Ethereum address you want to get the number of transactions for.
 Returns a Promise that resolves to a number representing the number of transactions.
 
-
 ```
-const transactionHelper = blockchainClient.transactions()
+blockchainClient.Transaction.fetchTransactionDetails(transactionId)
 ```
 
-This instance provide access to the following functions: 
-
-fetchTransactionDetails(transactionId: string): Promise<TransactionDetails>;
+***fetchTransactionDetails(transactionId: string): Promise<TransactionDetails>***
 Get transaction details/status from blockchain for any provided transaction ID
    
 transactionId - The transaction ID
 TransactionDetails - returns the transaction object
 
-fetchTransactionReceipt(transactionId: string): Promise<TransactionReceipt>;
+
+```
+blockchainClient.Transaction.fetchTransactionReceipt(transactionId)
+```
+***fetchTransactionReceipt(transactionId: string): Promise<TransactionReceipt>***
 Get transaction receipt from blockchain providing the ID for it in the input.
    
 transactionId - The transaction ID
 TransactionReceipt - returns the transaction receipt object
 
-  
-getLatestBlockNumber(): Promise<number>;
+```
+blockchainClient.Transaction.getLatestBlockNumber()
+```
+
+***getLatestBlockNumber(): Promise<number>***
 Retrieves the latest block number from the blockchain network
   
 returns a promise that resolves latest block number
 
-
-getBlockDetails(blockIdentifier: string | number): Promise<any>;
+```
+blockchainClient.Transaction.getBlocDetails(blockIdentifier)
+```
+***getBlockDetails(blockIdentifier: string | number): Promise<any>***
 Retrieves details of a block on the blockchain network based on its identifier (either block number or block hash)
     
 blockIdentifier The identifier of the block to retrieve details for.
@@ -96,22 +105,23 @@ returns A promise that resolves to the block details object or throws an error i
 
 
 ```
-const contractHelper = blockchainClient.contract()
-
+blockchainClient.Contract.readRecord(key)
 ```
-This instance provide access to the following functions: 
-
-readRecord(key: string): Promise<string> 
+***readRecord(key: string): Promise<string>*** 
 Reads a record from the blockchain by invoking the smart contract function that reads a record.
 
 key: The key of the record to read.
 returns The value of the record as a string.
 
-pushRecord(
+
+```
+blockchainClient.Contract.pushRecord(key, value, privateKey(optional))
+```
+***pushRecord(
     key: string,
     value: string,
     privateKey?: string
-  ): Promise<string>
+  ): Promise<string>***
 Pushes data to the blockchain by invoking the smart contract function that writes a record.
 The transaction is signed with the provided private key.
     
