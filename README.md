@@ -36,7 +36,7 @@ Creates a new instance of the BlockchainClient class.
 
 providerUrl - The URL of the Ethereum-based blockchain network you want to interact with.
 
-privateKey - The private key to establish account details.
+privateKeys - The private keys to establish account details.
 
 ABI - ABI of smart contract gives a contract the ability to communicate and interact with external applications and other smart contracts.
 
