@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import ITransaction from "./ITransaction";
+import ILedger from "./ILedger";
 import { Accounts } from "../Account/Account";
 import {
   TransactionDetails,
@@ -7,15 +7,16 @@ import {
   SignedTransaction,
   TransactionPayload,
   SendSignedTransactionResponse,
-} from "./TransactionTypes";
+} from "./LedgerTypes";
 
 /**
  * Class representing a Transaction
  */
-class Transaction implements ITransaction {
+class Ledger implements ILedger {
   private web3: Web3;
   private accounts: Accounts;
-  private getNonce: Function
+  private getNonce: Function;
+  private currentAddress: string;
   /**
    * @param {string} providerUrl - The web3 provider URL
    * @param {string} privateKeys - The default private key to sign the transactions
@@ -25,7 +26,8 @@ class Transaction implements ITransaction {
     this.accounts = new Accounts(this.web3, privateKeys);
     this.getNonce = this.accounts["getNonce"] as (
       address: string
-    ) => Promise<number>
+    ) => Promise<number>;
+    this.currentAddress = "";
   }
 
   /**
@@ -77,7 +79,11 @@ class Transaction implements ITransaction {
     privateKey: string
   ): Promise<SignedTransaction> {
     try {
-      const nonce: number = await this.getNonce(payload.from);
+      const nonce: number = await this.getNonce.call(
+        this.accounts,
+        payload.from
+      );
+      this.currentAddress = payload.from;
       const tx: TransactionPayload = {
         ...payload,
         nonce,
@@ -91,7 +97,7 @@ class Transaction implements ITransaction {
         rawTransaction: signedTransaction.rawTransaction as string,
       };
     } catch (error: any) {
-      this.accounts.resetNonces()
+      this.accounts.resetNonces(this.currentAddress);
       throw new Error(`Failed to create signed transaction: ${error.message}`);
     }
   }
@@ -112,7 +118,7 @@ class Transaction implements ITransaction {
         transactionHash: result.transactionHash as string,
       };
     } catch (error: any) {
-      this.accounts.resetNonces()
+      this.accounts.resetNonces(this.currentAddress);
       throw new Error(`Failed to create signed transaction: ${error.message}`);
     }
   }
@@ -161,4 +167,4 @@ class Transaction implements ITransaction {
   }
 }
 
-export default Transaction;
+export default Ledger;

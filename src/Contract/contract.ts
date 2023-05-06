@@ -1,14 +1,14 @@
 import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { Accounts } from "../Account/Account";
-import Transaction from "../Transaction/Transaction";
+import Transaction from "../Ledger/Ledger";
 import { IRecord } from "./IContract";
 import { AbiItem } from "web3-utils";
 import {
   TransactionPayload,
   SignedTransaction,
   SendSignedTransactionResponse,
-} from "../Transaction/TransactionTypes";
+} from "../Ledger/LedgerTypes";
 
 class SmartContract {
   private readonly contractAddress: string;

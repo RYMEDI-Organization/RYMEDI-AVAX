@@ -1,12 +1,12 @@
 import {
   TransactionDetails,
   TransactionReceipt
-} from "./TransactionTypes";
+} from "./LedgerTypes";
 
 /**
  * Interface representing a transaction methods on the Ethereum blockchain.
  */
-export default interface ITransaction {
+export default interface ILedger {
   /**
    * Get transaction details/status from blockchain for any provided transaction ID
    * @param {string} transactionId - The transaction ID
