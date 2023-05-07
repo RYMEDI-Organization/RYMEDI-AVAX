@@ -54,22 +54,25 @@ class SmartContract {
    * @param value The value of the record to write.
    * @returns The transaction hash of the submitted transaction.
    */
+  
   public async pushRecord(key: string, value: string): Promise<string> {
     try {
       const returnPrivateKey = this.accounts["returnPrivateKey"];
       const signerPrivateKey = returnPrivateKey.call(this.accounts);
       const gasPrice = await this.web3.eth.getGasPrice();
-      const data = this.contract.methods.pushRecord(key, value);
+      const address = this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
+      const data = this.contract.methods.addRecord(key, value);
       //estimating the gasLimit of keys and values we passed in Bulk Records
-      const gasLimit = await data.estimateGas();
+      const gasLimit = await data.estimateGas({
+        from: address
+      });
       const tx: TransactionPayload = {
-        from: this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey)
-          .address,
+        from: address,
         to: this.contractAddress,
         gasPrice: gasPrice,
         gasLimit: gasLimit,
         data: data.encodeABI(),
-      };
+      };      
       const signedTx = await this.createSignedTx.call(
         this.transaction,
         tx,
