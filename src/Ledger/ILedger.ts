@@ -1,7 +1,4 @@
-import {
-  TransactionDetails,
-  TransactionReceipt
-} from "./LedgerTypes";
+import { TransactionDetails, TransactionReceipt } from "./LedgerTypes";
 
 /**
  * Interface representing a transaction methods on the Ethereum blockchain.
@@ -13,6 +10,12 @@ export default interface ILedger {
    * @returns {Promise<TransactionDetails>} - The transaction object
    */
   fetchTransactionDetails(transactionId: string): Promise<TransactionDetails>;
+  /**
+   * Get block number from blockchain for any provided transaction ID/hash
+   * @param {string} transactionHash - The transaction IDs
+   * @returns {Promise<number>} - The block number
+   */
+  getBlockByTransactionHash(transactionHash: string): Promise<number>;
   /**
    * Get transaction receipt from blockchain providing the ID for it in the input.
    * @param {string} transactionId - The transaction ID
