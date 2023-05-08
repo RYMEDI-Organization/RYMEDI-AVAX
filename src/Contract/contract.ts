@@ -2,6 +2,7 @@ import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { Accounts } from "../Account/Account";
 import Transaction from "../Ledger/Ledger";
+import EventFetcher from "./EventFetcher/eventFetcher";
 import { IRecord } from "./IContract";
 import { AbiItem } from "web3-utils";
 import {
@@ -15,6 +16,7 @@ class SmartContract {
   private readonly contract: Contract;
   private accounts: Accounts;
   private transaction: Transaction;
+  public EventFetcher: EventFetcher;
   private readonly createSignedTx: Function;
   private readonly sendSignedTx: Function;
   constructor(
@@ -28,6 +30,7 @@ class SmartContract {
     this.contract = new this.web3.eth.Contract(abi, contractAddress);
     this.accounts = new Accounts(providerUrl, privateKeys);
     this.transaction = new Transaction(providerUrl, privateKeys);
+    this.EventFetcher = new EventFetcher(providerUrl, this.contract);
     this.createSignedTx = this.transaction["createSignedTransaction"] as (
       payload: TransactionPayload,
       privateKey?: string
@@ -59,7 +62,6 @@ class SmartContract {
         gasLimit: gasLimit,
         data: data.encodeABI(),
       };
-
       const signedTx = await this.createSignedTx.call(
         this.transaction,
         tx,
