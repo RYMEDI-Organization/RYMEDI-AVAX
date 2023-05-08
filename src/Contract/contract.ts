@@ -31,7 +31,7 @@ class SmartContract {
     this.contract = new this.web3.eth.Contract(abi, contractAddress);
     this.accounts = new Accounts(providerUrl, privateKeys);
     this.transaction = new Transaction(providerUrl, privateKeys);
-    this.EventFetcher = new EventFetcher(providerUrl, this.contract)
+    this.EventFetcher = new EventFetcher(this.contract)
     this.createSignedTx = this.transaction["createSignedTransaction"] as (
       payload: TransactionPayload,
       privateKey?: string
