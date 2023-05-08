@@ -2,16 +2,37 @@ import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 import { Accounts } from "../Account/Account";
 import { Contract } from "web3-eth-contract";
-import { ABI } from "../../abi";
+import SmartContract from "../Contract/contract";
+import Ledger from "../Ledger/Ledger";
+import {
+  TransactionPayload,
+  SignedTransaction,
+  SendSignedTransactionResponse,
+} from "../Ledger/LedgerTypes";
 export class AccessControl {
   private web3: Web3;
   private contract: Contract;
   private readonly PrivateKeys: string[];
   private accounts: Accounts;
   private addresses: string[];
-  public senders: string[];
-  private admins: string[];
-  private owner: string[];
+  public senders: {
+    address: string;
+    privateKey: string;
+  }[];
+  private admins: {
+    address: string;
+    privateKey: string;
+  }[];
+  private owner: {
+    address: string;
+    privateKey: string;
+  }[];
+  private smartContract: SmartContract;
+  private ledger: Ledger;
+  private createSignedTx: Function;
+  private sendSignedTx: Function;
+  private contractAddress: string;
+
   constructor(
     web3: Web3,
     privateKeys: string[],
@@ -24,70 +45,232 @@ export class AccessControl {
     this.accounts = new Accounts(this.web3, privateKeys);
     this.addresses = this.accounts.getAccounts();
     this.senders = [];
+    this.contractAddress = contractAddress;
+    this.smartContract = new SmartContract(
+      contractAddress,
+      Abi,
+      privateKeys,
+      this.web3
+    );
+    this.admins = [];
+    this.owner = [];
+    this.ledger = new Ledger(this.web3, privateKeys);
+    this.createSignedTx = this.ledger["createSignedTransaction"] as (
+      payload: TransactionPayload,
+      privateKey?: string
+    ) => Promise<SignedTransaction>;
+    this.sendSignedTx = this.ledger["sendSignedTransaction"] as (
+      signedTransactionData: string
+    ) => Promise<SendSignedTransactionResponse>;
   }
 
-  public async assignRole() {
-    let roleIdentity: { [key: string]: string } = {};
+  /**
+   * Get transaction details/status from blockchain for any provided transaction ID
+   * @returns - Creates array of objects for dedicated roles with private keys.
+   */
+  private async assignRole() {
     try {
-      this.addresses.map(async (address) => {
+      for (let i = 0; i < this.addresses.length; i++) {
         let sender = await this.contract.methods
-          .isSender("0x6FAC93cbe0263cBAbf9b95ce415fCDC5829713c4")
+          .isSender(this.addresses[i])
           .call();
         let owner = await this.contract.methods
-          .isOwner("0x6FAC93cbe0263cBAbf9b95ce415fCDC5829713c4")
+          .isOwner(this.addresses[i])
           .call();
         let admin = await this.contract.methods
-          .isAdmin("0x6FAC93cbe0263cBAbf9b95ce415fCDC5829713c4")
+          .isAdmin(this.addresses[i])
           .call();
-        console.log(sender, owner, admin);
         if (sender) {
-          this.senders.push(address);
-          roleIdentity[address] = "sender";
-          console.log(address, "sender", roleIdentity);
-        } else if (owner) {
-          roleIdentity[address] = "owner";
-          this.owner.push(address);
-        } else if (admin) {
-          this.admins.push(address);
-          roleIdentity[address] = "admin";
+          this.senders.push({
+            address: this.addresses[i],
+            privateKey: this.PrivateKeys[i],
+          });
         }
-      });
+        if (owner) {
+          this.owner.push({
+            address: this.addresses[i],
+            privateKey: this.PrivateKeys[i],
+          });
+        }
+        if (admin) {
+          this.admins.push({
+            address: this.addresses[i],
+            privateKey: this.PrivateKeys[i],
+          });
+        }
+      }
     } catch (error) {
-      console.log(error);
+      throw error
     }
-    console.log(roleIdentity);
   }
 
+  /**
+   * Assign the diven address as the admin
+   * Can only be signed by owners.
+   * @param {string} address - The address which needs to be admin
+   * @returns {string} - The transaction hash
+   */
   public async assignAdmin(address: string): Promise<void> {
-    if(this.admins.length > 0 || this.owner.length > 0) {
-        await this.contract.methods.assignAdmin(address)
+    try {
+      await this.assignRole();
+      let signerPrivateKey: string = "";
+      if (this.owner.length > 0) {
+        signerPrivateKey = this.owner[0].privateKey;
+      }
+      if (signerPrivateKey !== "") {
+        let data = await this.contract.methods.setAdmin(address);
+        let txhash = await this.signTransaction(data, signerPrivateKey);
+
+        return txhash;
+      }
+      throw new Error("No owner found");
+    } catch (error) {
+      throw error;
     }
   }
 
+  /**
+   * Revoke the address from sender role.
+   * Can only be signed by admins.
+   * @param {string} address - The address which needs to be removed
+   * @returns {string} - The transaction hash
+   */
+
+  public async removeSender(address: string): Promise<void> {
+    try {
+      await this.assignRole();
+      let signerPrivateKey: string = "";
+      if (this.admins.length > 0) {
+        signerPrivateKey = this.admins[0].privateKey;
+      }
+      if (signerPrivateKey !== "") {
+        let data = await this.contract.methods.revokeSender(address);
+        let txhash = await this.signTransaction(data, signerPrivateKey);
+
+        return txhash;
+      }
+      throw new Error("No owner found");
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Revoke the address from admin role.
+   * Can only be signed by owners.
+   * @param {string} address - The address which needs to be removed as admin
+   * @returns {string} - The transaction hash
+   */
+
+  public async removeAdmin(address: string): Promise<void> {
+    try {
+      await this.assignRole();
+      let signerPrivateKey: string = "";
+      if (this.owner.length > 0) {
+        signerPrivateKey = this.owner[0].privateKey;
+      }
+      if (signerPrivateKey !== "") {
+        let data = await this.contract.methods.revokeAdmin(address);
+        let txhash = await this.signTransaction(data, signerPrivateKey);
+
+        return txhash;
+      }
+      throw new Error("No owner found");
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Function is used to transfer ownership
+   * Can only be signed by owners.
+   * @param {string} address - The address which needs to be owner
+   * @returns {string} - The transaction hash
+   */
+
+  public async transferOwnership(address: string): Promise<void> {
+    try {
+      await this.assignRole();
+      let signerPrivateKey: string = "";
+      if (this.owner.length > 0) {
+        signerPrivateKey = this.owner[0].privateKey;
+      }
+      if (signerPrivateKey !== "") {
+        let data = await this.contract.methods.transferOwnership(address);
+        let txhash = await this.signTransaction(data, signerPrivateKey);
+
+        return txhash;
+      }
+      throw new Error("No owner found");
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Set the address to sender role.
+   * Can only be signed by admins.
+   * @param {string} address - The address which needs to be sender
+   * @returns {string} - The transaction hash
+   */
   public async assignSender(address: string): Promise<void> {
-    if(this.owner.length > 0) {
-        await this.contract.methods.assignSender(address)
+    try {
+      await this.assignRole();
+      let signerPrivateKey: string = "";
+      if (this.admins.length > 0) {
+        signerPrivateKey = this.admins[0].privateKey;
+      }
+      if (signerPrivateKey !== "") {
+        let data = await this.contract.methods.setSender(address);
+        let txhash = await this.signTransaction(data, signerPrivateKey);
+        return txhash;
+      }
+      throw new Error("No admin found");
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Signs the transaction and sends the transaction.
+   * @param data The object of the record to write.
+   * @param signerPrivateKey The private key for signing transaction.
+   * @returns The transaction hash of the submitted transaction.
+   */
+
+  private async signTransaction(data: any, signerPrivateKey: string) {
+    //estimating the gasLimit of keys and values we passed in Bulk Records
+    try {
+      const gasPrice = await this.web3.eth.getGasPrice();
+      const address =
+        this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
+      const gasLimit = await data.estimateGas({
+        from: address,
+      });
+      const tx: TransactionPayload = {
+        from: address,
+        to: this.contractAddress,
+        gasPrice: gasPrice,
+        gasLimit: gasLimit,
+        data: data.encodeABI(),
+      };
+
+      let createSignedTx = this.ledger["createSignedTransaction"] as (
+        payload: TransactionPayload,
+        privateKey?: string
+      ) => Promise<SignedTransaction>;
+      const signedTx = await createSignedTx.call(
+        this.ledger,
+        tx,
+        signerPrivateKey as string
+      );
+      const txReceipt = await this.sendSignedTx.call(
+        this.ledger,
+        signedTx.rawTransaction
+      );
+      return txReceipt.transactionHash;
+    } catch (error) {
+      throw error;
     }
   }
 }
-const data = new AccessControl(
-  "https://api.avax-test.network/ext/C/rpc",
-  [
-    "331c277ed4b077b5ca137b930aaa73143d85c7d0adad39adc4feaff0f3a14c7b",
-    "35cea68b9ab2c1e8e49632dc681ee9f18c0ec45955382487ba32f2b0e2a34be2",
-    "4a762a213d5020ae43b6902aeaefb8e74fd585dd4931d692d49a4c87f5426b7a",
-    "3d726d69bbc0f4ade8bcd4fc72a557ddd7ede6ff783929f1e5557c15fda6146e",
-    "c252374696ce572d51ba3bf950187be654c9c00db3528958a4ea7c6044ac5f82",
-    "fd5d3f2fa1480fc49861e357ededbd05031b5e69621cd5c4b6c63056f90b8208",
-    "ed43e0dd77cdd75ec11ca120f8fbc6168a7fef45d0714010a9d6d7bc299883f0",
-    "1317b6498809121f86e83f7276524b3271fac9ad84c3c6a4abe1c9576ea606c6",
-    "83b761bb23bc89f8513a09ddf52ae776161e5507859f47db136bf1e44a794ceb",
-    "0645fae951939fc60c4920cea623660a59d2f54575a86c1420845c463631471c",
-    "28962f5002e6d47bcb3d0bc2e6d49f30ef98fdca885b5e5842bc4eef4dc90a2d",
-    "463da28c501e4feb04d3b1ec37c79952023cebbc302d04b2331c86753cb55a75",
-  ],
-  ABI as AbiItem[],
-  "0xD0aD439cf1cc43e05004E021B24cE7B02252795f"
-);
-
-data.assignRole();
