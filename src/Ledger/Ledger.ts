@@ -61,7 +61,7 @@ class Ledger implements ILedger {
       }
       return txDetails.blockNumber;
     } catch (error) {
-      throw new Error(`Failed to fetch block number: ${error.message}`);
+      throw new Error(`Failed to fetch block number: ${error}`);
     }
   }
   /**
