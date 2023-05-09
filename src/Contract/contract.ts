@@ -42,29 +42,16 @@ class SmartContract {
 
   /**
    * Signs the transaction and sends the transaction.
-   * @param data The object of the record to write.
-   * @param signerPrivateKey The private key for signing transaction.
+   * @param {TransactionPayload} payload The object of the payload.
+   * @param {string} signerPrivateKey The private key for signing transaction.
    * @returns The transaction hash of the submitted transaction.
    */
-  private async signTransaction(data: any, signerPrivateKey: string) {
+  private async signTransaction(payload: TransactionPayload, signerPrivateKey: string) {
     //estimating the gasLimit of keys and values we passed in Bulk Records
     try {
-      const gasPrice = await this.web3.eth.getGasPrice();
-      const address =
-        this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
-      const gasLimit = await data.estimateGas({
-        from: address,
-      });
-      const tx: TransactionPayload = {
-        from: address,
-        to: this.contractAddress,
-        gasPrice: gasPrice,
-        gasLimit: gasLimit,
-        data: data.encodeABI(),
-      };
       const signedTx = await this.createSignedTx.call(
         this.transaction,
-        tx,
+        payload,
         signerPrivateKey as string
       );
       const txReceipt = await this.sendSignedTx.call(
@@ -87,14 +74,24 @@ class SmartContract {
 
   public async pushRecord(key: string, value: string): Promise<string> {
     try {
-      const returnPrivateKey = this.accounts["returnPrivateKey"];
-      const signerPrivateKey = returnPrivateKey.call(this.accounts);
+      const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
       const address =
         this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
       const isSender = await this.contract.methods.isSender(address).call();
       if (isSender) {
-        const data = await this.contract.methods.addBulkRecords(key, value);
-        const txhash = await this.signTransaction(data, signerPrivateKey);
+        const data = await this.contract.methods.addRecord(key, value);
+        const gasPrice = await this.web3.eth.getGasPrice();
+        const gasLimit = await data.estimateGas({
+          from: address,
+        });
+        const tx: TransactionPayload = {
+          from: address,
+          to: this.contractAddress,
+          gasPrice: gasPrice,
+          gasLimit: gasLimit,
+          data: data.encodeABI(),
+        };
+        const txhash = await this.signTransaction(tx, signerPrivateKey);
         return txhash;
       }
       return "";
@@ -116,14 +113,24 @@ class SmartContract {
     values: string[]
   ): Promise<string> {
     try {
-      const returnPrivateKey = this.accounts["returnPrivateKey"];
-      const signerPrivateKey = returnPrivateKey.call(this.accounts);
+      const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
       const address =
         this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
       const isSender = await this.contract.methods.isSender(address).call();
       if (isSender) {
         const data = await this.contract.methods.addBulkRecords(keys, values);
-        const txhash = await this.signTransaction(data, signerPrivateKey);
+        const gasPrice = await this.web3.eth.getGasPrice();
+        const gasLimit = await data.estimateGas({
+          from: address,
+        });
+        const tx: TransactionPayload = {
+          from: address,
+          to: this.contractAddress,
+          gasPrice: gasPrice,
+          gasLimit: gasLimit,
+          data: data.encodeABI(),
+        };
+        const txhash = await this.signTransaction(tx, signerPrivateKey);
         return txhash;
       }
       return "";
@@ -155,15 +162,25 @@ class SmartContract {
 
   public async removeRecord(key: string): Promise<string> {
     try {
-      const returnPrivateKey = this.accounts["returnPrivateKey"];
-      const signerPrivateKey = returnPrivateKey.call(this.accounts);
+      const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
       const address =
         this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
       const isAdmin = await this.contract.methods.isAdmin(address).call();
       if (isAdmin) {
         const data = this.contract.methods.removeRecord(key);
-        let txHash = await this.signTransaction(data, signerPrivateKey);
-        return txHash;
+        const gasPrice = await this.web3.eth.getGasPrice();
+        const gasLimit = await data.estimateGas({
+          from: address,
+        });
+        const tx: TransactionPayload = {
+          from: address,
+          to: this.contractAddress,
+          gasPrice: gasPrice,
+          gasLimit: gasLimit,
+          data: data.encodeABI(),
+        };
+        const txhash = await this.signTransaction(tx, signerPrivateKey);
+        return txhash;
       }
       return "";
     } catch (error) {
@@ -180,30 +197,6 @@ class SmartContract {
     try {
       const result = await this.contract.methods.recordCount().call();
       return result;
-    } catch (error: any) {
-      throw new Error(error);
-    }
-  }
-
-  /**
-   * update the address of new smart contract.
-   * can only be done by owner.
-   * @param key The address of new contract.
-   * @returns The transaction hash of the submitted transaction.
-   */
-  public async updateContractAddress(key: string) {
-    try {
-      const returnPrivateKey = this.accounts["returnPrivateKey"];
-      const signerPrivateKey = returnPrivateKey.call(this.accounts);
-      const address =
-        this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
-      const isOwner = await this.contract.methods.isOwner(address).call();
-      if (isOwner) {
-        const data = await this.contract.methods.updateCode(key);
-        let txHash = await this.signTransaction(data, signerPrivateKey);
-        return txHash;
-      }
-      return "";
     } catch (error: any) {
       throw new Error(error);
     }
