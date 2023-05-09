@@ -1,6 +1,5 @@
 import Web3 from "web3";
 import { AbiItem } from "web3-utils";
-import { Accounts } from "../Account/Account";
 import { Contract } from "web3-eth-contract";
 import SmartContract from "../Contract/contract";
 import { TransactionPayload } from "../Ledger/LedgerTypes";
@@ -12,19 +11,14 @@ export class AccessControl {
   private signTransaction: Function;
   constructor(
     web3: Web3,
-    privateKeys: string[],
+    contract: SmartContract,
     Abi: AbiItem | AbiItem[],
     contractAddress: string
   ) {
     this.web3 = web3;
     this.contract = new this.web3.eth.Contract(Abi, contractAddress);
     this.contractAddress = contractAddress;
-    this.smartContract = new SmartContract(
-      contractAddress,
-      Abi,
-      privateKeys,
-      this.web3
-    );
+    this.smartContract = contract
     this.signTransaction = this.smartContract["signTransaction"] as (
       payload: TransactionPayload,
       signerPrivateKey: string

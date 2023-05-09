@@ -64,7 +64,7 @@ export class BlockchainClient {
   private access(): AccessControl {
     return new AccessControl(
       this.web3,
-      this.privateKeys,
+      this.Contract,
       this.abi,
       this.contractAddress
     );
