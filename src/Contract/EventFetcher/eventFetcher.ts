@@ -1,15 +1,10 @@
 /**
  * This class provides a convenient way to fetch events from a smart contract using the Web3 library.
  */
-import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { EventFilter, EventLog } from "./eventTypes";
 
 class EventFetcher {
-  /**
-   * The Web3 instance used to interact with the blockchain.
-   */
-  private web3: Web3;
   /**
    * The smart contract instance used to fetch events from.
    */
@@ -20,8 +15,7 @@ class EventFetcher {
    * @param providerUrl - The URL of the blockchain provider to connect to.
    * @param contractInstance - The smart contract instance to fetch events from.
    */
-  constructor(providerUrl: Web3, contractInstance: Contract) {
-    this.web3 = providerUrl;
+  constructor(contractInstance: Contract) {
     this.events = contractInstance;
   }
 
