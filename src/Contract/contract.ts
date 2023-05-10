@@ -192,7 +192,7 @@ class SmartContract {
    * @param key The address of the new Contract.
    * @returns The value of the record as a object of string.
    */
-  public async getRecordCount() {
+  public async getRecordCount(): Promise<string>{
     try {
       const result = await this.contract.methods.recordCount().call();
       return result;

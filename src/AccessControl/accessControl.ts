@@ -105,7 +105,7 @@ export class AccessControl {
   public async removeSender(
     address: string,
     adminPrivateKey: string
-  ): Promise<void> {
+  ): Promise<string> {
     try {
       const adminPublicAddress =
         this.web3.eth.accounts.privateKeyToAccount(adminPrivateKey).address;
@@ -147,7 +147,7 @@ export class AccessControl {
   public async removeAdmin(
     address: string,
     ownerPrivateKey: string
-  ): Promise<void> {
+  ): Promise<string> {
     try {
       const ownerPublicAddress =
         this.web3.eth.accounts.privateKeyToAccount(ownerPrivateKey).address;
@@ -190,7 +190,7 @@ export class AccessControl {
   public async transferOwnership(
     address: string,
     ownerPrivateKey: string
-  ): Promise<void> {
+  ): Promise<string> {
     try {
       const ownerPublicAddress =
         this.web3.eth.accounts.privateKeyToAccount(ownerPrivateKey).address;
@@ -231,7 +231,7 @@ export class AccessControl {
   public async assignSender(
     address: string,
     adminPrivateKey: string
-  ): Promise<void> {
+  ): Promise<string> {
     try {
       const adminPublicAddress =
         this.web3.eth.accounts.privateKeyToAccount(adminPrivateKey).address;
@@ -273,7 +273,7 @@ export class AccessControl {
   public async updateContractAddress(
     contractAddress: string,
     ownerPrivateKey: string
-  ) {
+  ): Promise<string> {
     try {
       const ownerPublicAddress =
         this.web3.eth.accounts.privateKeyToAccount(ownerPrivateKey).address;
