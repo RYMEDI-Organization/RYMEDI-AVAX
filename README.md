@@ -117,7 +117,7 @@ ___
 blockchainClient.Contract.EventFetcher.fetchEvents(eventName,options)
 ```
 ___
-### Legder functions
+### Ledger functions
 
 ***fetchTransactionDetails(transactionId: string): Promise: TransactionDetails***
 
