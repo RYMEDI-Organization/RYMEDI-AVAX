@@ -3,14 +3,12 @@ import { Contract } from "web3-eth-contract";
 import { Accounts } from "../Account/Account";
 import Transaction from "../Ledger/Ledger";
 import EventFetcher from "./EventFetcher/eventFetcher";
-import { IRecord } from "./IContract";
 import { AbiItem } from "web3-utils";
 import {
   TransactionPayload,
   SignedTransaction,
   SendSignedTransactionResponse,
 } from "../Ledger/LedgerTypes";
-
 class SmartContract {
   private readonly contractAddress: string;
   private readonly web3: Web3;
@@ -40,35 +38,19 @@ class SmartContract {
       signedTransactionData: string
     ) => Promise<SendSignedTransactionResponse>;
   }
+
   /**
-   * Pushes data to the blockchain by invoking the smart contract function that writes a record.
-   * The transaction is signed with the provided private key.
-   * @param key The key of the record to write.
-   * @param value The value of the record to write.
+   * Signs the transaction and sends the transaction.
+   * @param {TransactionPayload} payload The object of the payload.
+   * @param {string} signerPrivateKey The private key for signing transaction.
    * @returns The transaction hash of the submitted transaction.
    */
-  
-  public async pushRecord(key: string, value: string): Promise<string> {
+  private async signTransaction(payload: TransactionPayload, signerPrivateKey: string) {
+    //estimating the gasLimit of keys and values we passed in Bulk Records
     try {
-      const returnPrivateKey = this.accounts["returnPrivateKey"];
-      const signerPrivateKey = returnPrivateKey.call(this.accounts);
-      const gasPrice = await this.web3.eth.getGasPrice();
-      const address = this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
-      const data = this.contract.methods.addRecord(key, value);
-      //estimating the gasLimit of keys and values we passed in Bulk Records
-      const gasLimit = await data.estimateGas({
-        from: address
-      });
-      const tx: TransactionPayload = {
-        from: address,
-        to: this.contractAddress,
-        gasPrice: gasPrice,
-        gasLimit: gasLimit,
-        data: data.encodeABI(),
-      };      
       const signedTx = await this.createSignedTx.call(
         this.transaction,
-        tx,
+        payload,
         signerPrivateKey as string
       );
       const txReceipt = await this.sendSignedTx.call(
@@ -82,16 +64,140 @@ class SmartContract {
   }
 
   /**
+   * Pushes data to the blockchain by invoking the smart contract function that writes a record.
+   * The transaction is signed with the provided private key.
+   * @param key The key of the record to write.
+   * @param value The value of the record to write.
+   * @returns The transaction hash of the submitted transaction.
+   */
+
+  public async pushRecord(key: string, value: string): Promise<string> {
+    try {
+      const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
+      const address =
+        this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
+      const isSender = await this.contract.methods.isSender(address).call();
+      if (isSender) {
+        const data = await this.contract.methods.addRecord(key, value);
+        const gasPrice = await this.web3.eth.getGasPrice();
+        const gasLimit = await data.estimateGas({
+          from: address,
+        });
+        const tx: TransactionPayload = {
+          from: address,
+          to: this.contractAddress,
+          gasPrice: gasPrice,
+          gasLimit: gasLimit,
+          data: data.encodeABI(),
+        };
+        const txhash = await this.signTransaction(tx, signerPrivateKey);
+        return txhash;
+      }
+      return "";
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Pushes data in bulk to the blockchain by invoking the smart contract function that writes a record.
+   * The transaction is signed with the provided private key.
+   * @param keys The array of keys of the record to write.
+   * @param values The array of values of the record to write.
+   * @returns The transaction hash of the submitted transaction.
+   */
+
+  public async pushBulkRecord(
+    keys: string[],
+    values: string[]
+  ): Promise<string> {
+    try {
+      const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
+      const address =
+        this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
+      const isSender = await this.contract.methods.isSender(address).call();
+      if (isSender) {
+        const data = await this.contract.methods.addBulkRecords(keys, values);
+        const gasPrice = await this.web3.eth.getGasPrice();
+        const gasLimit = await data.estimateGas({
+          from: address,
+        });
+        const tx: TransactionPayload = {
+          from: address,
+          to: this.contractAddress,
+          gasPrice: gasPrice,
+          gasLimit: gasLimit,
+          data: data.encodeABI(),
+        };
+        const txhash = await this.signTransaction(tx, signerPrivateKey);
+        return txhash;
+      }
+      return "";
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
    * Reads a record from the blockchain by invoking the smart contract function that reads a record.
    * @param key The key of the record to read.
    * @returns The value of the record as a string.
    */
+
   public async readRecord(key: string): Promise<string> {
     try {
       const result = await this.contract.methods.getRecord(key).call();
       return result;
     } catch (error) {
       throw error;
+    }
+  }
+
+  /**
+   * Removes a record from the blockchain by invoking the smart contract function that removes the record.
+   * @param key The key of the record to remove.
+   * @returns The transaction hash of the submitted transaction.
+   */
+
+  public async removeRecord(key: string): Promise<string> {
+    try {
+      const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
+      const address =
+        this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
+      const isAdmin = await this.contract.methods.isAdmin(address).call();
+      if (isAdmin) {
+        const data = this.contract.methods.removeRecord(key);
+        const gasPrice = await this.web3.eth.getGasPrice();
+        const gasLimit = await data.estimateGas({
+          from: address,
+        });
+        const tx: TransactionPayload = {
+          from: address,
+          to: this.contractAddress,
+          gasPrice: gasPrice,
+          gasLimit: gasLimit,
+          data: data.encodeABI(),
+        };
+        const txhash = await this.signTransaction(tx, signerPrivateKey);
+        return txhash;
+      }
+      return "";
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Returns a count of records from the blockchain by invoking the smart contract function.
+   * @param key The address of the new Contract.
+   * @returns The value of the record as a object of string.
+   */
+  public async getRecordCount(): Promise<string>{
+    try {
+      const result = await this.contract.methods.recordCount().call();
+      return result;
+    } catch (error: any) {
+      throw new Error(error);
     }
   }
 }

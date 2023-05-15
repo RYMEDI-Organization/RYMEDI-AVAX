@@ -3,16 +3,17 @@ import { AbiItem } from "web3-utils";
 import { Accounts } from "./src/Account/Account";
 import Ledger from "./src/Ledger/Ledger";
 import SmartContract from "./src/Contract/contract";
+import { AccessControl } from "./src/AccessControl/accessControl";
 
 export class BlockchainClient {
   private web3: Web3;
   private privateKeys: string[];
   private abi;
   private contractAddress: string;
-  public Account: Accounts
-  public Ledger: Ledger
-  public Contract: SmartContract
-
+  public Account: Accounts;
+  public Ledger: Ledger;
+  public Contract: SmartContract;
+  public AccessControl: AccessControl;
   constructor(
     providedUrl: string,
     privateKeys: string[],
@@ -23,9 +24,10 @@ export class BlockchainClient {
     this.web3 = new Web3(providedUrl);
     this.privateKeys = privateKeys;
     this.contractAddress = contractAddress;
-    this.Account = this.accounts()
-    this.Contract = this.contract()
-    this.Ledger = this.ledger()
+    this.Account = this.accounts();
+    this.Contract = this.contract();
+    this.Ledger = this.ledger();
+    this.AccessControl = this.access();
   }
 
   /**
@@ -39,7 +41,7 @@ export class BlockchainClient {
   /**
    * Creates a new instance of the Transaction class for managing Ethereum accounts
    *
-   * @returns {Transaction} - An instance of the Transaction class
+   * @returns {Ledger} - An instance of the Ledger class
    */
   private ledger(): Ledger {
     return new Ledger(this.web3, this.privateKeys);
@@ -51,6 +53,20 @@ export class BlockchainClient {
       this.abi,
       this.privateKeys,
       this.web3
+    );
+  }
+
+  /**
+   * Creates a new instance of the AccessControl class for managing Ethereum accounts
+   *
+   * @returns {AccessControl} - An instance of the AccessControl class
+   */
+  private access(): AccessControl {
+    return new AccessControl(
+      this.web3,
+      this.Contract,
+      this.abi,
+      this.contractAddress
     );
   }
 }
