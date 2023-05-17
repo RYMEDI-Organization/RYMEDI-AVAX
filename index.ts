@@ -4,11 +4,11 @@ import { Accounts } from "./src/Account/Account";
 import Ledger from "./src/Ledger/Ledger";
 import SmartContract from "./src/Contract/contract";
 import { AccessControl } from "./src/AccessControl/accessControl";
-
+import { ABI } from './abi'
 export class BlockchainClient {
   private web3: Web3;
   private privateKeys: string[];
-  private abi;
+  private abi: AbiItem | AbiItem[];
   private contractAddress: string;
   public Account: Accounts;
   public Ledger: Ledger;
@@ -17,10 +17,10 @@ export class BlockchainClient {
   constructor(
     providedUrl: string,
     privateKeys: string[],
-    abi: AbiItem | AbiItem[],
-    contractAddress: string
+    contractAddress: string,
+    abi?: AbiItem | AbiItem[]
   ) {
-    this.abi = abi;
+    this.abi = abi ? abi : ABI as AbiItem | AbiItem[];
     this.web3 = new Web3(providedUrl);
     this.privateKeys = privateKeys;
     this.contractAddress = contractAddress;
