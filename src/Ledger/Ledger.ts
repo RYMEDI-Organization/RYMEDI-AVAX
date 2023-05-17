@@ -48,7 +48,22 @@ class Ledger implements ILedger {
       throw new Error(`Failed to fetch transaction details: ${error.message}`);
     }
   }
-
+  /**
+   * Get block number from blockchain for any provided transaction ID/hash
+   * @param {string} transactionHash - The transaction IDs
+   * @returns {Promise<number>} - The block number
+   */
+  async getBlockByTransactionHash(transactionHash: string): Promise<number> {
+    try {
+      const txDetails = await this.fetchTransactionDetails(transactionHash);
+      if (!txDetails) {
+        throw new Error(`Block Number for ${transactionHash} not found`);
+      }
+      return txDetails.blockNumber;
+    } catch (error) {
+      throw new Error(`Failed to fetch block number: ${error}`);
+    }
+  }
   /**
    * Get transaction receipt from blockchain providing the ID for it in the input.
    * @param {string} transactionId - The transaction ID
