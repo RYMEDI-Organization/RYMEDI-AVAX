@@ -15,6 +15,7 @@ class SmartContract {
   private readonly contract: Contract;
   private accounts: Accounts;
   private transaction: Transaction;
+  private storeAbi: AbiItem | AbiItem[];
   public EventFetcher: EventFetcher
   private readonly createSignedTx: Function;
   private readonly sendSignedTx: Function;
@@ -37,6 +38,7 @@ class SmartContract {
     this.sendSignedTx = this.transaction["sendSignedTransaction"] as (
       signedTransactionData: string
     ) => Promise<SendSignedTransactionResponse>;
+    this.storeAbi = abi;
   }
 
   /**
@@ -199,6 +201,14 @@ class SmartContract {
     } catch (error: any) {
       throw new Error(error);
     }
+  }
+
+  /**
+   * Returns the ABI which is used to initialize contract.
+   * @returns The copy of ABI used.
+   */
+  public async getAbi() {
+      return this.storeAbi;
   }
 }
 

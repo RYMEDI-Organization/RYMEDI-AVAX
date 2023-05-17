@@ -20,11 +20,11 @@ const BlockchainClient = require('blockchain-client');
 Then, you can create a new instance of the BlockchainClient class and pass in the URL of the Ethereum-based blockchain network you want to interact with, array of private keys or key, ABI json for smart contract and contract address: 
 
 ```javascript
-const blockchainClient = new BlockchainClient('URL', [PRIVATE KEYS], [ABI], 'Contract address');
+const blockchainClient = new BlockchainClient('URL', [PRIVATE KEYS], 'Contract address', ABI as []);
 ```
 
 ```javascript
-constructor(providerUrl: string, privateKeys: string[], ABI: AbiItem|AbiItem[], ContractAddress: string)
+constructor(providerUrl: string, privateKeys: string[], ContractAddress: string, ABI?: AbiItem|AbiItem[])
 ```
 
 Creates a new instance of the BlockchainClient class.
@@ -33,9 +33,9 @@ Creates a new instance of the BlockchainClient class.
 
 - privateKeys - The private keys to establish account details.
 
-- ABI - ABI of smart contract gives a contract the ability to communicate and interact with external applications and other smart contracts.
-
 - ContractAddress - Address of the smart contract.
+
+- ABI(OPTIONAL) - ABI of smart contract gives a contract the ability to communicate and interact with external applications and other smart contracts.
 
 ## Functions
 
@@ -100,6 +100,14 @@ ___
 - @returns The value of the record as a object of string.
 ```javascript
 blockchainClient.Contract.getRecordCount()
+```
+___
+
+***getAbi(): string | string[]***
+- Returns the ABI which is used to initialize contract.
+- @returns The copy of ABI used.
+```javascript
+blockchainClient.Contract.getAbi()
 ```
 ___
 ### EventFetcher Function
