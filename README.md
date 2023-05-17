@@ -61,9 +61,9 @@ ___
 
 - The transaction is signed with the provided private key.
     
-- @param key: The key of the record to write.
+- @param key: The key of the record to write, should be in SHA256 format.
 
-- @param value: The value of the record to write.
+- @param value: The value of the record to write, should be in SHA256 format.
 
 - @returns The transaction hash of the submitted transaction.
 
@@ -76,8 +76,8 @@ ___
 ***pushBulkRecords(keys: string[], values: string[]): Promise: string***
 - Pushes data in bulk to the blockchain by invoking the smart contract function that writes a record.
 - The transaction is signed with the provided private key.
-- @param keys The array of keys of the record to write.
-- @param values The array of values of the record to write.
+- @param keys The array of keys of the record to write, should be in SHA256 format.
+- @param values The array of values of the record to write, should be in SHA256 format.
 - @returns The transaction hash of the submitted transaction.
 
 ```javascript
@@ -125,7 +125,7 @@ ___
 blockchainClient.Contract.EventFetcher.fetchEvents(eventName,options)
 ```
 ___
-### Legder functions
+### Ledger functions
 
 ***fetchTransactionDetails(transactionId: string): Promise: TransactionDetails***
 
@@ -173,7 +173,7 @@ blockchainClient.Ledger.getLatestBlockNumber()
 blockchainClient.Ledger.getBlockDetails(blockIdentifier)
 ```
 ---
-**getBlockByTransactionHash(transactionHash: string): Promise: number***
+***getBlockByTransactionHash(transactionHash: string): Promise: number***
 
 - Gets block number of transaction from blockchain providing the ID for it in the input.
    
@@ -203,8 +203,9 @@ ___
 ***removeSender(
     address: string,
     adminPrivateKey: string
-  ): Promise: string*** 
-Revoke the address from sender role.
+  ): Promise: string***
+
+- Revoke the address from sender role.
 - Can only be signed by admins.
 - @param {string} address - The address which needs to be removed
 - @param {string} adminPrivateKey - The private key of admin to sign the transaction
