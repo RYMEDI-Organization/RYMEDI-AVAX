@@ -2,7 +2,7 @@
   "name": "@rymedi/blockchain-client",
   "version": "1.0.0",
   "description": "this contains client library",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "build": "tsc",
     "lint": "npx eslint ./src/** --no-error-on-unmatched-pattern",
