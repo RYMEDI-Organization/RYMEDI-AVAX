@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "this contains client library",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "lint": "npx eslint ./src/** --no-error-on-unmatched-pattern",
