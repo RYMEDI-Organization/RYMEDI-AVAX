@@ -1,16 +1,11 @@
 import dotenv from "dotenv";
+import Web3 from "web3";
 // Load the environment variables from .env file
 dotenv.config();
-import Transaction from "../src/Transaction/Transaction";
-
-const providerUrl = process.env.PROVIDER_URL as string;
-const defaultPrivateKey = process.env.DEFAULT_PRIVATE_KEY as string;
-const payload = {
-  to: process.env.RECEIVER_ADDRESS,
-  value: process.env.AMOUNT_TO_SEND,
-  gas: "21000",
-};
-
+import Transaction from "../src/Ledger/Ledger";
+const providerUrl = new Web3(process.env.PROVIDER_URL as string);
+const defaultPrivateKey = process.env.DEFAULT_PRIVATE_KEY?.split(' ') as string[];
+let payload: any
 // Test suite for Transaction class
 describe("Transaction", () => {
   let transaction: Transaction;
@@ -19,6 +14,13 @@ describe("Transaction", () => {
   beforeAll(() => {
     // Set up a new Transaction instance using a mock web3 provider URL and private key
     transaction = new Transaction(providerUrl, defaultPrivateKey);
+    let account = transaction['accounts']
+    payload = {
+      from: (account.getAccounts())[0],
+      to: process.env.RECEIVER_ADDRESS,
+      value: process.env.AMOUNT_TO_SEND,
+      gas: "21000",
+    };
   });
 
   // Test case for fetchTransactionDetails method
@@ -41,7 +43,7 @@ describe("Transaction", () => {
       const transaction = new Transaction(providerUrl, defaultPrivateKey);
       await expect(
         transaction.fetchTransactionDetails(transactionId)
-      ).rejects.toThrow("Transaction not found");
+      ).rejects.toThrow(`Failed to fetch transaction details: Transaction details for ${transactionId} not found`);
     });
     // Test for invalid transactionId
     test("throws an error when the transaction ID is invalid", async () => {
@@ -73,7 +75,7 @@ describe("Transaction", () => {
       const transaction = new Transaction(providerUrl, defaultPrivateKey);
       await expect(
         transaction.fetchTransactionReceipt(transactionId)
-      ).rejects.toThrow("Transaction receipt not found");
+      ).rejects.toThrow(`Failed to fetch transaction receipt: Transaction receipt for ${transactionId} not found`);
     });
 
     // Test for invalid transactionId
@@ -90,24 +92,25 @@ describe("Transaction", () => {
   describe("createSignedTransaction", () => {
     // Test for successful creation with default private key
     test("returns signed transaction when a valid payload is provided", async () => {
-      const signedTransaction = await transaction.createSignedTransaction(
-        payload
+      const signedTransaction = await transaction['createSignedTransaction'](
+        payload,
+        process.env.USER_PROVIDED_KEY as string
       );
       expect(signedTransaction.rawTransaction).toBeTruthy();
     });
     // Test for successful creation with user provided private key
     test("returns signed transaction with provided private key when a valid payload and private key are provided", async () => {
       const customPrivateKey = process.env.USER_PROVIDED_KEY;
-      const signedTransaction = await transaction.createSignedTransaction(
+      const signedTransaction = await transaction["createSignedTransaction"](
         payload,
-        customPrivateKey
+        customPrivateKey as string
       );
       expect(signedTransaction.rawTransaction).toBeTruthy();
     });
     // Test for failed creation with invalid payload
     test("throws an error when an invalid payload is provided", async () => {
       await expect(
-        transaction.createSignedTransaction(null)
+        transaction["createSignedTransaction"]({from: 'time', to: 'as'}, defaultPrivateKey[1])
       ).rejects.toThrowError("Failed to create signed transaction");
     });
   });
@@ -115,7 +118,7 @@ describe("Transaction", () => {
   // Test for fetching gasPrice
   describe("getGasPrice", () => {
     test("returns the current gas price in wei", async () => {
-      const gasPrice = await transaction.getGasPrice();
+      const gasPrice = await transaction["getGasPrice"]();
       expect(parseInt(gasPrice)).toBeGreaterThan(0);
     });
   });

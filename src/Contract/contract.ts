@@ -96,8 +96,8 @@ class SmartContract {
         return txhash;
       }
       return "";
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      throw error
     }
   }
 
@@ -135,8 +135,8 @@ class SmartContract {
         return txhash;
       }
       return "";
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      throw error
     }
   }
 
@@ -149,9 +149,12 @@ class SmartContract {
   public async readRecord(key: string): Promise<string> {
     try {
       const result = await this.contract.methods.getRecord(key).call();
+      if(result != '0x0000000000000000000000000000000000000000000000000000000000000000'){
       return result;
-    } catch (error) {
-      throw error;
+      }
+      return ""
+    } catch (error: any) {
+      throw error
     }
   }
 
@@ -184,8 +187,8 @@ class SmartContract {
         return txhash;
       }
       return "";
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      throw error
     }
   }
 
@@ -199,7 +202,7 @@ class SmartContract {
       const result = await this.contract.methods.recordCount().call();
       return result;
     } catch (error: any) {
-      throw new Error(error);
+      throw error
     }
   }
 
