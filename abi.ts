@@ -1,5 +1,4 @@
-export const ABI =
-[
+export const ABI = [
 	{
 		"anonymous": false,
 		"inputs": [
@@ -10,10 +9,10 @@ export const ABI =
 				"type": "bytes32"
 			},
 			{
-				"indexed": true,
-				"internalType": "bytes32",
+				"indexed": false,
+				"internalType": "string",
 				"name": "value",
-				"type": "bytes32"
+				"type": "string"
 			}
 		],
 		"name": "AddRecord",
@@ -29,10 +28,10 @@ export const ABI =
 				"type": "bytes32"
 			},
 			{
-				"indexed": true,
-				"internalType": "bytes32",
+				"indexed": false,
+				"internalType": "string",
 				"name": "value",
-				"type": "bytes32"
+				"type": "string"
 			}
 		],
 		"name": "RemoveRecord",
@@ -175,23 +174,17 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "bytes32[]",
-				"name": "keys",
+				"name": "_keys",
 				"type": "bytes32[]"
 			},
 			{
-				"internalType": "bytes32[]",
-				"name": "values",
-				"type": "bytes32[]"
+				"internalType": "string[]",
+				"name": "_values",
+				"type": "string[]"
 			}
 		],
 		"name": "addBulkRecords",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
@@ -199,23 +192,17 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "bytes32",
-				"name": "key",
+				"name": "_key",
 				"type": "bytes32"
 			},
 			{
-				"internalType": "bytes32",
-				"name": "value",
-				"type": "bytes32"
+				"internalType": "string",
+				"name": "_value",
+				"type": "string"
 			}
 		],
 		"name": "addRecord",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
@@ -236,16 +223,16 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "bytes32",
-				"name": "key",
+				"name": "_key",
 				"type": "bytes32"
 			}
 		],
 		"name": "getRecord",
 		"outputs": [
 			{
-				"internalType": "bytes32",
+				"internalType": "string",
 				"name": "",
-				"type": "bytes32"
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -329,7 +316,7 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "account",
+				"name": "_account",
 				"type": "address"
 			}
 		],
@@ -348,7 +335,7 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "account",
+				"name": "_account",
 				"type": "address"
 			}
 		],
@@ -367,7 +354,7 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "account",
+				"name": "_account",
 				"type": "address"
 			}
 		],
@@ -435,7 +422,7 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "bytes32",
-				"name": "key",
+				"name": "_key",
 				"type": "bytes32"
 			}
 		],
@@ -472,7 +459,7 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "account",
+				"name": "_account",
 				"type": "address"
 			}
 		],
@@ -503,7 +490,7 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "account",
+				"name": "_account",
 				"type": "address"
 			}
 		],
@@ -528,21 +515,8 @@ export const ABI =
 	{
 		"inputs": [
 			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
-			}
-		],
-		"name": "rymediInitialize",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "address",
-				"name": "account",
+				"name": "_account",
 				"type": "address"
 			}
 		],
@@ -555,7 +529,7 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "account",
+				"name": "_account",
 				"type": "address"
 			}
 		],
@@ -600,7 +574,7 @@ export const ABI =
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "account",
+				"name": "_account",
 				"type": "address"
 			}
 		],
