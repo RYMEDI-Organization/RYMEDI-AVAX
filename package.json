@@ -1,7 +1,7 @@
 {
-  "name": "@rymedi/blockchain-client",
+  "name": "@drsrymedi/blockchain-client",
   "version": "1.0.0",
-  "description": "this contains client library",
+  "description": "Rymedi TS library for interacting with Avalanche subnets",
   "main": "index.ts",
   "type": "commonjs",
   "scripts": {
@@ -28,10 +28,6 @@
     "web3": "^1.9.0"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/namanzeeve/drsrymedi/RYMEDI-AVAX.git"
+    "@drsrymedi:registry":"https://npm.pkg.github.com"
   }
 }
