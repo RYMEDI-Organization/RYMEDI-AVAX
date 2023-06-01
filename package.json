@@ -28,10 +28,6 @@
     "web3": "^1.9.0"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/namanzeeve/drsrymedi/RYMEDI-AVAX.git"
+    "@drsrymedi:registry":"https://npm.pkg.github.com"
   }
 }
