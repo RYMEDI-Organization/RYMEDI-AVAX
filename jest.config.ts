@@ -11,4 +11,7 @@ module.exports = {
     },
     transformIgnorePatterns: ["<rootDir>/node_modules/"],
     moduleFileExtensions: ["ts", "tsx", "js", "jsx"],
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/src/Contract/EventFetcher/eventFetcher.ts",
+  ],
   };

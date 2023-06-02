@@ -16,7 +16,7 @@ class SmartContract {
   private accounts: Accounts;
   private transaction: Transaction;
   private storeAbi: AbiItem | AbiItem[];
-  public EventFetcher: EventFetcher
+  public EventFetcher: EventFetcher;
   private readonly createSignedTx: Function;
   private readonly sendSignedTx: Function;
   constructor(
@@ -30,7 +30,7 @@ class SmartContract {
     this.contract = new this.web3.eth.Contract(abi, contractAddress);
     this.accounts = new Accounts(providerUrl, privateKeys);
     this.transaction = new Transaction(providerUrl, privateKeys);
-    this.EventFetcher = new EventFetcher(this.contract)
+    this.EventFetcher = new EventFetcher(this.contract);
     this.createSignedTx = this.transaction["createSignedTransaction"] as (
       payload: TransactionPayload,
       privateKey?: string
@@ -47,7 +47,10 @@ class SmartContract {
    * @param {string} signerPrivateKey The private key for signing transaction.
    * @returns The transaction hash of the submitted transaction.
    */
-  private async signTransaction(payload: TransactionPayload, signerPrivateKey: string) {
+  private async signTransaction(
+    payload: TransactionPayload,
+    signerPrivateKey: string
+  ) {
     //estimating the gasLimit of keys and values we passed in Bulk Records
     try {
       const signedTx = await this.createSignedTx.call(
@@ -75,29 +78,41 @@ class SmartContract {
 
   public async pushRecord(key: string, value: string): Promise<string> {
     try {
-      const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
+      const signerPrivateKey = this.accounts["returnPrivateKey"].call(
+        this.accounts
+      );
       const address =
         this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
       const isSender = await this.contract.methods.isSender(address).call();
       if (isSender) {
-        const data = await this.contract.methods.addRecord(key, value);
-        const gasPrice = await this.web3.eth.getGasPrice();
-        const gasLimit = await data.estimateGas({
-          from: address,
-        });
-        const tx: TransactionPayload = {
-          from: address,
-          to: this.contractAddress,
-          gasPrice: gasPrice,
-          gasLimit: gasLimit,
-          data: data.encodeABI(),
-        };
-        const txhash = await this.signTransaction(tx, signerPrivateKey);
-        return txhash;
+        try {
+          const data = await this.contract.methods.addRecord(key, value);
+          const gasPrice = await this.web3.eth.getGasPrice();
+          const gasLimit = await data.estimateGas({
+            from: address,
+          });
+
+          const tx: TransactionPayload = {
+            from: address,
+            to: this.contractAddress,
+            gasPrice: gasPrice,
+            gasLimit: gasLimit,
+            data: data.encodeABI(),
+          };
+          const txhash = await this.signTransaction(tx, signerPrivateKey);
+          if (txhash.length == 0) {
+            throw new Error("Please provide valid arguements");
+          } else {
+            return txhash;
+          }
+        } catch {
+          throw new Error("Invalid key format, provide key in SHA54 format");
+        }
+      } else {
+        throw new Error("Provided public address does not have any sender in it.");
       }
-      return "";
     } catch (error: any) {
-      throw error
+      throw new Error(error);
     }
   }
 
@@ -114,29 +129,41 @@ class SmartContract {
     values: string[]
   ): Promise<string> {
     try {
-      const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
+      const signerPrivateKey = this.accounts["returnPrivateKey"].call(
+        this.accounts
+      );
       const address =
         this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
       const isSender = await this.contract.methods.isSender(address).call();
       if (isSender) {
-        const data = await this.contract.methods.addBulkRecords(keys, values);
-        const gasPrice = await this.web3.eth.getGasPrice();
-        const gasLimit = await data.estimateGas({
-          from: address,
-        });
-        const tx: TransactionPayload = {
-          from: address,
-          to: this.contractAddress,
-          gasPrice: gasPrice,
-          gasLimit: gasLimit,
-          data: data.encodeABI(),
-        };
-        const txhash = await this.signTransaction(tx, signerPrivateKey);
-        return txhash;
+        try {
+          const data = await this.contract.methods.addBulkRecords(keys, values);
+          const gasPrice = await this.web3.eth.getGasPrice();
+          const gasLimit = await data.estimateGas({
+            from: address,
+          });
+
+          const tx: TransactionPayload = {
+            from: address,
+            to: this.contractAddress,
+            gasPrice: gasPrice,
+            gasLimit: gasLimit,
+            data: data.encodeABI(),
+          };
+          const txhash = await this.signTransaction(tx, signerPrivateKey);
+          if (txhash.length == 0) {
+            throw new Error("Please provide valid arguements");
+          } else {
+            return txhash;
+          }
+        } catch {
+          throw new Error("Invalid key format, provide key in SHA54 format");
+        }
+      } else {
+        throw new Error("Provided public address does not have any sender in it.");
       }
-      return "";
     } catch (error: any) {
-      throw error
+      throw new Error(error);
     }
   }
 
@@ -149,12 +176,16 @@ class SmartContract {
   public async readRecord(key: string): Promise<string> {
     try {
       const result = await this.contract.methods.getRecord(key).call();
-      if(result != '0x0000000000000000000000000000000000000000000000000000000000000000'){
-      return result;
+      if (
+        result !=
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ) {
+        return result;
+      } else {
+        return "";
       }
-      return ""
     } catch (error: any) {
-      throw error
+      throw error;
     }
   }
 
@@ -166,7 +197,9 @@ class SmartContract {
 
   public async removeRecord(key: string): Promise<string> {
     try {
-      const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
+      const signerPrivateKey = this.accounts["returnPrivateKey"].call(
+        this.accounts
+      );
       const address =
         this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
       const isAdmin = await this.contract.methods.isAdmin(address).call();
@@ -188,7 +221,7 @@ class SmartContract {
       }
       return "";
     } catch (error: any) {
-      throw error
+      throw error;
     }
   }
 
@@ -197,12 +230,12 @@ class SmartContract {
    * @param key The address of the new Contract.
    * @returns The value of the record as a object of string.
    */
-  public async getRecordCount(): Promise<string>{
+  public async getRecordCount(): Promise<string> {
     try {
       const result = await this.contract.methods.recordCount().call();
       return result;
     } catch (error: any) {
-      throw error
+      throw error;
     }
   }
 
@@ -211,7 +244,7 @@ class SmartContract {
    * @returns The copy of ABI used.
    */
   public async getAbi() {
-      return this.storeAbi;
+    return this.storeAbi;
   }
 }
 
