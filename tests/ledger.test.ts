@@ -144,4 +144,17 @@ describe("Transaction", () => {
       ).rejects.toThrowError("Failed to get block details");
     });
   });
+
+  describe("getBlockByTransactionHash", () => {
+    test("returns the block number when a valid transaction hash is provided", async () => {
+      const block = await transaction.getBlockByTransactionHash(process.env.TRANSACTION_ID as string);
+      expect(block).toBe(Number(21294971));
+    });
+    // Test for failed fetch with invalid transaction hash
+    test("throws an error when an invalid transaction hash is provided", async () => {
+      await expect(
+        transaction.getBlockByTransactionHash(process.env.INCORRECT_TRANSACTION_ID as string)
+      ).rejects.toThrowError(`Failed to fetch block number: Error: Failed to fetch transaction details: Transaction details for ${process.env.INCORRECT_TRANSACTION_ID} not found`);
+    });
+  });
 });

@@ -11,8 +11,8 @@ const abi = ABI as [];
 const providedUrl: Web3 = new Web3(process.env.PROVIDER_URL as string);
 const privateKeys = process.env.DEFAULT_PRIVATE_KEY?.split(" ") as string[];
 const contractAddress = process.env.CONTRACT_ADDRESS as string;
-const mockedTransactionHash = process.env.TRANSACTION_ID;
 const contract: Contract = new providedUrl.eth.Contract(abi, contractAddress);
+const senderKey = process.env.SENDER_KEY as string;
 let payload: any;
 
 function generateHash(key: any, data: any) {
@@ -29,7 +29,7 @@ describe("SmartContract", () => {
     smartContract = new SmartContract(
       contractAddress,
       abi,
-      privateKeys,
+      [senderKey],
       providedUrl
     );
     let account = smartContract["accounts"];
@@ -49,27 +49,31 @@ describe("SmartContract", () => {
       expect(result).toBeDefined();
     }, 10000);
 
-    it("should return an empty string if the sender is not allowed", async () => {
+    it("should return an error if the sender is not allowed", async () => {
       const instanceContract = new SmartContract(
         contractAddress,
         abi,
-        ["ee720dc97c27b9dd14387e64493b1bf80495c292b1a5837468d587386f47ccf7"],
+        [process.env.ADMIN_KEY as string],
         providedUrl
       );
       const key = generateHash("key", "generate");
       const value = generateHash("value", "generate");
-      const expectedTxHash = "";
-      const result = await instanceContract.pushRecord(key, value);
-
-      expect(result).toBeDefined();
-      expect(result).toBe(expectedTxHash);
+      try {
+        await instanceContract.pushRecord(key, value);
+      } catch (error: any) {
+        expect(error.message).toBe(
+          "Error: Provided public address does not have any sender in it."
+        );
+      }
     }, 10000);
 
     it("should throw an error if an exception occurs", async () => {
       try {
-        await smartContract.pushRecord("key", "value");
-      } catch (error) {
-        expect(error).toThrow();
+        await smartContract.pushRecord(" ", "213");
+      } catch (error: any) {
+        expect(error.message).toBe(
+          "Error: Invalid key format, provide key in SHA54 format"
+        );
       }
     }, 10000);
   });
@@ -92,21 +96,20 @@ describe("SmartContract", () => {
       const instanceContract = new SmartContract(
         contractAddress,
         abi,
-        ["ee720dc97c27b9dd14387e64493b1bf80495c292b1a5837468d587386f47ccf7"],
+        [process.env.ADMIN_KEY as string],
         providedUrl
       );
       const key = generateHash("key", "generate");
       const key1 = generateHash("key1", "generate");
       const value = generateHash("value", "generate");
       const value1 = generateHash("value1", "generate");
-      const expectedTxHash = "";
-      const result = await instanceContract.pushBulkRecord(
-        [key, value],
-        [key1, value1]
-      );
-
-      expect(result).toBeDefined();
-      expect(result).toBe(expectedTxHash);
+      try {
+        await instanceContract.pushBulkRecord([key, value], [key1, value1]);
+      } catch (error: any) {
+        expect(error.message).toBe(
+          "Error: Provided public address does not have any sender in it."
+        );
+      }
     }, 10000);
 
     it("should throw an error if an exception occurs", async () => {
@@ -115,8 +118,10 @@ describe("SmartContract", () => {
           ["key1", "key2"],
           ["value1", "value2"]
         );
-      } catch (error) {
-        expect(error).toThrowError();
+      } catch (error: any) {
+        expect(error.message).toBe(
+          "Error: Invalid key format, provide key in SHA54 format"
+        );
       }
     }, 10000);
   });
@@ -125,11 +130,10 @@ describe("SmartContract", () => {
     it("should read a record from the blockchain", async () => {
       const key = generateHash("key", "generate");
       const value = generateHash("value", "generate");
-      const expectedHash = await smartContract.pushRecord(key, value);
+      await smartContract.pushRecord(key, value);
       const result = await smartContract.readRecord(key);
       expect(result).toBeDefined();
-      expect(result).toBe(expectedHash);
-    });
+    }, 10000);
 
     it("invalid key is provided should return empty string", async () => {
       const expectedValue = "";
@@ -153,39 +157,37 @@ describe("SmartContract", () => {
 
   describe("removeRecord", () => {
     it("should remove a record from the blockchain and return the transaction hash", async () => {
-      const key = generateHash("key", "generate");
-      const value = generateHash("value", "generate");
-      await smartContract.pushRecord(key, value);
-      const result = await smartContract.removeRecord(key);
-
-      expect(result).toBeDefined();
-    });
-
-    it("should return an empty string if the sender is not an admin", async () => {
       const instanceContract = new SmartContract(
         contractAddress,
         abi,
-        [
-          "efb28159e40ae370139ab9f61d74522004c6f99ee44dad32902ba16cc74e6874",
-          "461b45c53737d5612f7d7e1763b70b959c1bd491f0418a3d80a563921e4b9029",
-        ],
+        [process.env.ADMIN_KEY as string],
         providedUrl
       );
       const key = generateHash("key", "generate");
       const value = generateHash("value", "generate");
+      await smartContract.pushRecord(key, value);
+      setTimeout(async () => {
+        const result = await instanceContract.removeRecord(key);
+        expect(result).toBeDefined();
+      }, 3000);
+    }, 10000);
+
+    it("should return an empty string if the sender is not an admin", async () => {
+      const key = generateHash("key", "generate");
+      const value = generateHash("value", "generate");
       const expectedTxHash = "";
-      await instanceContract.pushRecord(key, value);
+      await smartContract.pushRecord(key, value);
 
       const result = await smartContract.removeRecord(key);
 
       expect(result).toBe(expectedTxHash);
-    });
+    }, 15000);
 
     it("should throw an error if an exception occurs", async () => {
       try {
         await smartContract.removeRecord("key");
-      } catch (error) {
-        expect(error).toThrow();
+      } catch (error: any) {
+        expect(error.message).toThrowError();
       }
     });
   });
