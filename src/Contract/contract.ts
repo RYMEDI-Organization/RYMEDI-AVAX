@@ -9,6 +9,7 @@ import {
   SignedTransaction,
   SendSignedTransactionResponse,
 } from "../Ledger/LedgerTypes";
+import axios from "axios";
 class SmartContract {
   private readonly contractAddress: string;
   private readonly web3: Web3;
@@ -91,13 +92,17 @@ class SmartContract {
           const gasLimit = await data.estimateGas({
             from: address,
           });
-
+          const maxPriorityFeePerGas = await this.getMaximumPrioriityFeeGas();
+          const maxFeePerGas = (
+            parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)
+          ).toString();
           const tx: TransactionPayload = {
             from: address,
             to: this.contractAddress,
-            gasPrice: gasPrice,
             gasLimit: gasLimit,
             data: data.encodeABI(),
+            maxPriorityFeePerGas: maxPriorityFeePerGas,
+            maxFeePerGas: maxFeePerGas
           };
           const txhash = await this.signTransaction(tx, signerPrivateKey);
           if (txhash.length == 0) {
@@ -109,7 +114,9 @@ class SmartContract {
           throw new Error("Invalid key format, provide key in SHA54 format");
         }
       } else {
-        throw new Error("Provided public address does not have any sender in it.");
+        throw new Error(
+          "Provided public address does not have any sender in it."
+        );
       }
     } catch (error: any) {
       throw new Error(error);
@@ -142,13 +149,17 @@ class SmartContract {
           const gasLimit = await data.estimateGas({
             from: address,
           });
-
+          const maxPriorityFeePerGas = await this.getMaximumPrioriityFeeGas();
+          const maxFeePerGas = (
+            parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)
+          ).toString();
           const tx: TransactionPayload = {
             from: address,
             to: this.contractAddress,
-            gasPrice: gasPrice,
             gasLimit: gasLimit,
             data: data.encodeABI(),
+            maxPriorityFeePerGas: maxPriorityFeePerGas,
+            maxFeePerGas: maxFeePerGas
           };
           const txhash = await this.signTransaction(tx, signerPrivateKey);
           if (txhash.length == 0) {
@@ -160,7 +171,9 @@ class SmartContract {
           throw new Error("Invalid key format, provide key in SHA54 format");
         }
       } else {
-        throw new Error("Provided public address does not have any sender in it.");
+        throw new Error(
+          "Provided public address does not have any sender in it."
+        );
       }
     } catch (error: any) {
       throw new Error(error);
@@ -209,12 +222,17 @@ class SmartContract {
         const gasLimit = await data.estimateGas({
           from: address,
         });
+        const maxPriorityFeePerGas = await this.getMaximumPrioriityFeeGas();
+        const maxFeePerGas = (
+          parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)
+        ).toString();
         const tx: TransactionPayload = {
           from: address,
           to: this.contractAddress,
-          gasPrice: gasPrice,
           gasLimit: gasLimit,
           data: data.encodeABI(),
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          maxFeePerGas: maxFeePerGas
         };
         const txhash = await this.signTransaction(tx, signerPrivateKey);
         return txhash;
@@ -245,6 +263,35 @@ class SmartContract {
    */
   public async getAbi() {
     return this.storeAbi;
+  }
+
+  private async getMaximumPrioriityFeeGas(): Promise<string> {
+    try {
+      let data = JSON.stringify({
+        jsonrpc: "2.0",
+        method: "eth_maxPriorityFeePerGas",
+        params: [],
+        id: 1,
+      });
+
+      let config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: "https://api.avax-test.network/ext/bc/C/rpc",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+
+      const response = await axios.request(config);
+      const maxPriorityFeePerGas = this.web3.utils.hexToNumberString(
+        response.data.result
+      );
+      return maxPriorityFeePerGas;
+    } catch (error: any) {
+      throw new Error(`Failed to get average gas fee: ${error.message}`);
+    }
   }
 }
 

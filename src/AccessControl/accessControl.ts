@@ -9,6 +9,7 @@ export class AccessControl {
   private smartContract: SmartContract;
   private contractAddress: string;
   private signTransaction: Function;
+  private getMaximumPrioriityFeeGas: Function;
   constructor(
     web3: Web3,
     contract: SmartContract,
@@ -23,6 +24,7 @@ export class AccessControl {
       payload: TransactionPayload,
       signerPrivateKey: string
     ) => Promise<string>;
+    this.getMaximumPrioriityFeeGas = this.smartContract["getMaximumPrioriityFeeGas"]
   }
 
   /**
@@ -70,16 +72,18 @@ export class AccessControl {
       if (validOwnerKey === true) {
         const data = await this.contract.methods.setAdmin(address);
         const gasPrice = await this.web3.eth.getGasPrice();
-
+        const maxPriorityFeePerGas = await this.getMaximumPrioriityFeeGas();
+        const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
         const gasLimit = await data.estimateGas({
           from: ownerPublicAddress,
         });
         const tx: TransactionPayload = {
           from: ownerPublicAddress,
           to: this.contractAddress,
-          gasPrice: gasPrice,
           gasLimit: gasLimit,
           data: data.encodeABI(),
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          maxFeePerGas: maxFeePerGas
         };
         const txhash = await this.signTransaction.call(
           this.smartContract,
@@ -116,12 +120,15 @@ export class AccessControl {
         const gasLimit = await data.estimateGas({
           from: adminPublicAddress,
         });
+        const maxPriorityFeePerGas = await this.getMaximumPrioriityFeeGas();
+        const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
         const tx: TransactionPayload = {
           from: adminPublicAddress,
           to: this.contractAddress,
-          gasPrice: gasPrice,
           gasLimit: gasLimit,
           data: data.encodeABI(),
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          maxFeePerGas: maxFeePerGas
         };
         const txhash = await this.signTransaction.call(
           this.smartContract,
@@ -159,12 +166,15 @@ export class AccessControl {
         const gasLimit = await data.estimateGas({
           from: ownerPublicAddress,
         });
+        const maxPriorityFeePerGas = await this.getMaximumPrioriityFeeGas();
+        const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
         const tx: TransactionPayload = {
           from: ownerPublicAddress,
           to: this.contractAddress,
-          gasPrice: gasPrice,
           gasLimit: gasLimit,
           data: data.encodeABI(),
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          maxFeePerGas: maxFeePerGas
         };
         const txhash = await this.signTransaction.call(
           this.smartContract,
@@ -201,12 +211,15 @@ export class AccessControl {
         const gasLimit = await data.estimateGas({
           from: ownerPublicAddress,
         });
+        const maxPriorityFeePerGas = await this.getMaximumPrioriityFeeGas();
+        const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
         const tx: TransactionPayload = {
           from: ownerPublicAddress,
           to: this.contractAddress,
-          gasPrice: gasPrice,
           gasLimit: gasLimit,
           data: data.encodeABI(),
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          maxFeePerGas: maxFeePerGas
         };
         const txhash = await this.signTransaction.call(
           this.smartContract,
@@ -243,12 +256,15 @@ export class AccessControl {
         const gasLimit = await data.estimateGas({
           from: adminPublicAddress,
         });
+        const maxPriorityFeePerGas = await this.getMaximumPrioriityFeeGas();
+        const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
         const tx: TransactionPayload = {
           from: adminPublicAddress,
           to: this.contractAddress,
-          gasPrice: gasPrice,
           gasLimit: gasLimit,
           data: data.encodeABI(),
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          maxFeePerGas: maxFeePerGas
         };
         const txhash = await this.signTransaction.call(
           this.smartContract,
@@ -284,12 +300,15 @@ export class AccessControl {
         const gasLimit = await data.estimateGas({
           from: ownerPublicAddress,
         });
+        const maxPriorityFeePerGas = await this.getMaximumPrioriityFeeGas();
+        const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
         const tx: TransactionPayload = {
           from: ownerPublicAddress,
           to: this.contractAddress,
-          gasPrice: gasPrice,
           gasLimit: gasLimit,
           data: data.encodeABI(),
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          maxFeePerGas: maxFeePerGas
         };
         const txhash = await this.signTransaction.call(
           this.smartContract,
