@@ -110,7 +110,8 @@ export interface TransactionPayload {
   data?: string;
   nonce?: number;
   gasLimit?: number;
-  gasPrice?: string;
+  maxPriorityFeePerGas?: string,
+  maxFeePerGas?: string,
 }
 /** 
 Interface for signed transaction response
