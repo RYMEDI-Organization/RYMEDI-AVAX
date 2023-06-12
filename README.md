@@ -7,7 +7,7 @@ Web3 is a powerful library that provides an interface to interact with Ethereum-
 To install the library, simply run the following command:
 
 ```
-npm install blockchain-client
+npm install @rymedi-organization/blockchain-client@1.0.0
 ```
 
 ## Usage
