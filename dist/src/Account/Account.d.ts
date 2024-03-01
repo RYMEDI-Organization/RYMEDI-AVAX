@@ -24,7 +24,7 @@ export declare class Accounts implements IAccount {
      *
      * @returns a number which is the transaction count.
      */
-    private getNonce;
+    getNonce(account: string): Promise<number>;
     /**
      * An function used to update the transaction count of the account.
      *

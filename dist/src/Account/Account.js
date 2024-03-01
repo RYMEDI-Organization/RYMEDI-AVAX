@@ -17,8 +17,14 @@ class Accounts {
      */
     constructor(web3, privateKeys) {
         this.web3 = web3;
-        this.accounts = privateKeys.map((privateKey) => this.web3.eth.accounts.privateKeyToAccount(privateKey).address);
         this.nonces = {};
+        this.accounts = privateKeys.map((privateKey) => {
+            const address = this.web3.eth.accounts.privateKeyToAccount(privateKey).address;
+            this.web3.eth.getTransactionCount(address).then((networkNonce) => {
+                this.nonces[address] = networkNonce;
+            });
+            return address;
+        });
         this.currentKeyIndex = 0;
         this.PrivateKeys = privateKeys;
     }

@@ -17,6 +17,7 @@ class AccessControl {
         this.contractAddress = contractAddress;
         this.smartContract = contract;
         this.signTransaction = this.smartContract["signTransaction"];
+        this.getMaximumPrioriityFeeGas = this.smartContract["getMaximumPrioriityFeeGas"];
     }
     /**
      * Checks if the given address is owner
@@ -65,15 +66,18 @@ class AccessControl {
                 if (validOwnerKey === true) {
                     const data = yield this.contract.methods.setAdmin(address);
                     const gasPrice = yield this.web3.eth.getGasPrice();
+                    const maxPriorityFeePerGas = yield this.getMaximumPrioriityFeeGas();
+                    const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
                     const gasLimit = yield data.estimateGas({
                         from: ownerPublicAddress,
                     });
                     const tx = {
                         from: ownerPublicAddress,
                         to: this.contractAddress,
-                        gasPrice: gasPrice,
                         gasLimit: gasLimit,
                         data: data.encodeABI(),
+                        maxPriorityFeePerGas: maxPriorityFeePerGas,
+                        maxFeePerGas: maxFeePerGas
                     };
                     const txhash = yield this.signTransaction.call(this.smartContract, tx, ownerPrivateKey);
                     return txhash;
@@ -103,12 +107,15 @@ class AccessControl {
                     const gasLimit = yield data.estimateGas({
                         from: adminPublicAddress,
                     });
+                    const maxPriorityFeePerGas = yield this.getMaximumPrioriityFeeGas();
+                    const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
                     const tx = {
                         from: adminPublicAddress,
                         to: this.contractAddress,
-                        gasPrice: gasPrice,
                         gasLimit: gasLimit,
                         data: data.encodeABI(),
+                        maxPriorityFeePerGas: maxPriorityFeePerGas,
+                        maxFeePerGas: maxFeePerGas
                     };
                     const txhash = yield this.signTransaction.call(this.smartContract, tx, adminPrivateKey);
                     return txhash;
@@ -138,12 +145,15 @@ class AccessControl {
                     const gasLimit = yield data.estimateGas({
                         from: ownerPublicAddress,
                     });
+                    const maxPriorityFeePerGas = yield this.getMaximumPrioriityFeeGas();
+                    const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
                     const tx = {
                         from: ownerPublicAddress,
                         to: this.contractAddress,
-                        gasPrice: gasPrice,
                         gasLimit: gasLimit,
                         data: data.encodeABI(),
+                        maxPriorityFeePerGas: maxPriorityFeePerGas,
+                        maxFeePerGas: maxFeePerGas
                     };
                     const txhash = yield this.signTransaction.call(this.smartContract, tx, ownerPrivateKey);
                     return txhash;
@@ -173,12 +183,15 @@ class AccessControl {
                     const gasLimit = yield data.estimateGas({
                         from: ownerPublicAddress,
                     });
+                    const maxPriorityFeePerGas = yield this.getMaximumPrioriityFeeGas();
+                    const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
                     const tx = {
                         from: ownerPublicAddress,
                         to: this.contractAddress,
-                        gasPrice: gasPrice,
                         gasLimit: gasLimit,
                         data: data.encodeABI(),
+                        maxPriorityFeePerGas: maxPriorityFeePerGas,
+                        maxFeePerGas: maxFeePerGas
                     };
                     const txhash = yield this.signTransaction.call(this.smartContract, tx, ownerPrivateKey);
                     return txhash;
@@ -208,12 +221,15 @@ class AccessControl {
                     const gasLimit = yield data.estimateGas({
                         from: adminPublicAddress,
                     });
+                    const maxPriorityFeePerGas = yield this.getMaximumPrioriityFeeGas();
+                    const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
                     const tx = {
                         from: adminPublicAddress,
                         to: this.contractAddress,
-                        gasPrice: gasPrice,
                         gasLimit: gasLimit,
                         data: data.encodeABI(),
+                        maxPriorityFeePerGas: maxPriorityFeePerGas,
+                        maxFeePerGas: maxFeePerGas
                     };
                     const txhash = yield this.signTransaction.call(this.smartContract, tx, adminPrivateKey);
                     return txhash;
@@ -243,12 +259,15 @@ class AccessControl {
                     const gasLimit = yield data.estimateGas({
                         from: ownerPublicAddress,
                     });
+                    const maxPriorityFeePerGas = yield this.getMaximumPrioriityFeeGas();
+                    const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
                     const tx = {
                         from: ownerPublicAddress,
                         to: this.contractAddress,
-                        gasPrice: gasPrice,
                         gasLimit: gasLimit,
                         data: data.encodeABI(),
+                        maxPriorityFeePerGas: maxPriorityFeePerGas,
+                        maxFeePerGas: maxFeePerGas
                     };
                     const txhash = yield this.signTransaction.call(this.smartContract, tx, ownerPrivateKey);
                     return txhash;
