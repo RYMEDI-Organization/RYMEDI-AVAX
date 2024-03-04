@@ -26,7 +26,9 @@ declare class SmartContract {
      * @param value The value of the record to write.
      * @returns The transaction hash of the submitted transaction.
      */
-    pushRecord(key: string, value: string): Promise<string>;
+    pushRecord(key: string, value: string, options?: {
+        nonce?: number;
+    }): Promise<string>;
     /**
      * Pushes data in bulk to the blockchain by invoking the smart contract function that writes a record.
      * The transaction is signed with the provided private key.
@@ -34,7 +36,9 @@ declare class SmartContract {
      * @param values The array of values of the record to write.
      * @returns The transaction hash of the submitted transaction.
      */
-    pushBulkRecord(keys: string[], values: string[]): Promise<string>;
+    pushBulkRecord(keys: string[], values: string[], options?: {
+        nonce?: number;
+    }): Promise<string>;
     /**
      * Reads a record from the blockchain by invoking the smart contract function that reads a record.
      * @param key The key of the record to read.
@@ -58,5 +62,6 @@ declare class SmartContract {
      * @returns The copy of ABI used.
      */
     getAbi(): Promise<AbiItem | AbiItem[]>;
+    private getMaximumPrioriityFeeGas;
 }
 export default SmartContract;

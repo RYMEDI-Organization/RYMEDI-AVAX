@@ -14,11 +14,16 @@ export class Accounts implements IAccount {
    */
   constructor(web3: Web3, privateKeys: string[]) {
     this.web3 = web3;
-    this.accounts = privateKeys.map(
-      (privateKey) =>
-        this.web3.eth.accounts.privateKeyToAccount(privateKey).address
-    );
     this.nonces = {};
+    this.accounts = privateKeys.map(
+      (privateKey) =>{
+        const address = this.web3.eth.accounts.privateKeyToAccount(privateKey).address
+        this.web3.eth.getTransactionCount(address).then((networkNonce)=>{
+          this.nonces[address] = networkNonce;
+        });
+        return address;
+      }
+    );
     this.currentKeyIndex = 0;
     this.PrivateKeys = privateKeys;
   }
@@ -39,7 +44,7 @@ export class Accounts implements IAccount {
    *
    * @returns a number which is the transaction count.
    */
-  private async getNonce(account: string): Promise<number> {
+  public async getNonce(account: string): Promise<number> {
     try {
       const networkNonce = await this.web3.eth.getTransactionCount(account);
       const localNonce = this.nonces[account] || 0;

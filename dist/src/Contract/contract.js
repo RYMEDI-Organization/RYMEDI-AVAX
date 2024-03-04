@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Account_1 = require("../Account/Account");
 const Ledger_1 = __importDefault(require("../Ledger/Ledger"));
 const eventFetcher_1 = __importDefault(require("./EventFetcher/eventFetcher"));
+const axios_1 = __importDefault(require("axios"));
 class SmartContract {
     constructor(contractAddress, abi, privateKeys, providerUrl) {
         this.contractAddress = contractAddress;
@@ -53,32 +54,48 @@ class SmartContract {
      * @param value The value of the record to write.
      * @returns The transaction hash of the submitted transaction.
      */
-    pushRecord(key, value) {
+    pushRecord(key, value, options) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
                 const address = this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
                 const isSender = yield this.contract.methods.isSender(address).call();
                 if (isSender) {
-                    const data = yield this.contract.methods.addRecord(key, value);
-                    const gasPrice = yield this.web3.eth.getGasPrice();
-                    const gasLimit = yield data.estimateGas({
-                        from: address,
-                    });
-                    const tx = {
-                        from: address,
-                        to: this.contractAddress,
-                        gasPrice: gasPrice,
-                        gasLimit: gasLimit,
-                        data: data.encodeABI(),
-                    };
-                    const txhash = yield this.signTransaction(tx, signerPrivateKey);
-                    return txhash;
+                    try {
+                        const data = yield this.contract.methods.addRecord(key, value);
+                        const gasPrice = yield this.web3.eth.getGasPrice();
+                        const gasLimit = yield data.estimateGas({
+                            from: address,
+                        });
+                        const maxPriorityFeePerGas = yield this.getMaximumPrioriityFeeGas();
+                        const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
+                        const tx = {
+                            from: address,
+                            to: this.contractAddress,
+                            gasLimit: gasLimit,
+                            data: data.encodeABI(),
+                            maxPriorityFeePerGas: maxPriorityFeePerGas,
+                            maxFeePerGas: maxFeePerGas,
+                            nonce: options === null || options === void 0 ? void 0 : options.nonce
+                        };
+                        const txhash = yield this.signTransaction(tx, signerPrivateKey);
+                        if (txhash.length == 0) {
+                            throw new Error("Please provide valid arguements");
+                        }
+                        else {
+                            return txhash;
+                        }
+                    }
+                    catch (_a) {
+                        throw new Error("Invalid key format, provide key in SHA54 format");
+                    }
                 }
-                return "";
+                else {
+                    throw new Error("Provided public address does not have any sender in it.");
+                }
             }
             catch (error) {
-                throw error;
+                throw new Error(error);
             }
         });
     }
@@ -89,32 +106,48 @@ class SmartContract {
      * @param values The array of values of the record to write.
      * @returns The transaction hash of the submitted transaction.
      */
-    pushBulkRecord(keys, values) {
+    pushBulkRecord(keys, values, options) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const signerPrivateKey = this.accounts["returnPrivateKey"].call(this.accounts);
                 const address = this.web3.eth.accounts.privateKeyToAccount(signerPrivateKey).address;
                 const isSender = yield this.contract.methods.isSender(address).call();
                 if (isSender) {
-                    const data = yield this.contract.methods.addBulkRecords(keys, values);
-                    const gasPrice = yield this.web3.eth.getGasPrice();
-                    const gasLimit = yield data.estimateGas({
-                        from: address,
-                    });
-                    const tx = {
-                        from: address,
-                        to: this.contractAddress,
-                        gasPrice: gasPrice,
-                        gasLimit: gasLimit,
-                        data: data.encodeABI(),
-                    };
-                    const txhash = yield this.signTransaction(tx, signerPrivateKey);
-                    return txhash;
+                    try {
+                        const data = yield this.contract.methods.addBulkRecords(keys, values);
+                        const gasPrice = yield this.web3.eth.getGasPrice();
+                        const gasLimit = yield data.estimateGas({
+                            from: address,
+                        });
+                        const maxPriorityFeePerGas = yield this.getMaximumPrioriityFeeGas();
+                        const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
+                        const tx = {
+                            from: address,
+                            to: this.contractAddress,
+                            gasLimit: gasLimit,
+                            data: data.encodeABI(),
+                            maxPriorityFeePerGas: maxPriorityFeePerGas,
+                            maxFeePerGas: maxFeePerGas,
+                            nonce: options === null || options === void 0 ? void 0 : options.nonce
+                        };
+                        const txhash = yield this.signTransaction(tx, signerPrivateKey);
+                        if (txhash.length == 0) {
+                            throw new Error("Please provide valid arguements");
+                        }
+                        else {
+                            return txhash;
+                        }
+                    }
+                    catch (_a) {
+                        throw new Error("Invalid key format, provide key in SHA54 format");
+                    }
                 }
-                return "";
+                else {
+                    throw new Error("Provided public address does not have any sender in it.");
+                }
             }
             catch (error) {
-                throw error;
+                throw new Error(error);
             }
         });
     }
@@ -127,10 +160,13 @@ class SmartContract {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield this.contract.methods.getRecord(key).call();
-                if (result != '0x0000000000000000000000000000000000000000000000000000000000000000') {
+                if (result !=
+                    "0x0000000000000000000000000000000000000000000000000000000000000000") {
                     return result;
                 }
-                return "";
+                else {
+                    return "";
+                }
             }
             catch (error) {
                 throw error;
@@ -154,12 +190,15 @@ class SmartContract {
                     const gasLimit = yield data.estimateGas({
                         from: address,
                     });
+                    const maxPriorityFeePerGas = yield this.getMaximumPrioriityFeeGas();
+                    const maxFeePerGas = (parseInt(gasPrice) + parseInt(maxPriorityFeePerGas)).toString();
                     const tx = {
                         from: address,
                         to: this.contractAddress,
-                        gasPrice: gasPrice,
                         gasLimit: gasLimit,
                         data: data.encodeABI(),
+                        maxPriorityFeePerGas: maxPriorityFeePerGas,
+                        maxFeePerGas: maxFeePerGas
                     };
                     const txhash = yield this.signTransaction(tx, signerPrivateKey);
                     return txhash;
@@ -194,6 +233,33 @@ class SmartContract {
     getAbi() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.storeAbi;
+        });
+    }
+    getMaximumPrioriityFeeGas() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let data = JSON.stringify({
+                    jsonrpc: "2.0",
+                    method: "eth_maxPriorityFeePerGas",
+                    params: [],
+                    id: 1,
+                });
+                let config = {
+                    method: "post",
+                    maxBodyLength: Infinity,
+                    url: "https://api.avax-test.network/ext/bc/C/rpc",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    data: data,
+                };
+                const response = yield axios_1.default.request(config);
+                const maxPriorityFeePerGas = this.web3.utils.hexToNumberString(response.data.result);
+                return maxPriorityFeePerGas;
+            }
+            catch (error) {
+                throw new Error(`Failed to get average gas fee: ${error.message}`);
+            }
         });
     }
 }

@@ -77,7 +77,7 @@ class SmartContract {
    * @returns The transaction hash of the submitted transaction.
    */
 
-  public async pushRecord(key: string, value: string): Promise<string> {
+  public async pushRecord(key: string, value: string, options?: { nonce?: number}): Promise<string> {
     try {
       const signerPrivateKey = this.accounts["returnPrivateKey"].call(
         this.accounts
@@ -102,7 +102,8 @@ class SmartContract {
             gasLimit: gasLimit,
             data: data.encodeABI(),
             maxPriorityFeePerGas: maxPriorityFeePerGas,
-            maxFeePerGas: maxFeePerGas
+            maxFeePerGas: maxFeePerGas,
+            nonce: options?.nonce
           };
           const txhash = await this.signTransaction(tx, signerPrivateKey);
           if (txhash.length == 0) {
@@ -133,7 +134,10 @@ class SmartContract {
 
   public async pushBulkRecord(
     keys: string[],
-    values: string[]
+    values: string[],
+    options?: {
+      nonce?: number
+    }
   ): Promise<string> {
     try {
       const signerPrivateKey = this.accounts["returnPrivateKey"].call(
@@ -159,7 +163,8 @@ class SmartContract {
             gasLimit: gasLimit,
             data: data.encodeABI(),
             maxPriorityFeePerGas: maxPriorityFeePerGas,
-            maxFeePerGas: maxFeePerGas
+            maxFeePerGas: maxFeePerGas,
+            nonce: options?.nonce
           };
           const txhash = await this.signTransaction(tx, signerPrivateKey);
           if (txhash.length == 0) {

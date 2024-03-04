@@ -7,6 +7,7 @@ export declare class AccessControl {
     private smartContract;
     private contractAddress;
     private signTransaction;
+    private getMaximumPrioriityFeeGas;
     constructor(web3: Web3, contract: SmartContract, Abi: AbiItem | AbiItem[], contractAddress: string);
     /**
      * Checks if the given address is owner
