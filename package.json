@@ -1,6 +1,6 @@
 {
   "name": "@rymedi-organization/blockchain-client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Rymedi TS library for interacting with Avalanche subnets",
   "main": "dist/index.js",
   "type": "commonjs",
